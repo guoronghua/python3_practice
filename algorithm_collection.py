@@ -468,6 +468,7 @@ class Graph(object):
 
 
 class StringMatching(object):
+    """常见字符串匹配算法"""
 
     @staticmethod
     def bf(main_str, sub_str):
