@@ -9,7 +9,7 @@ class Sort(object):
 
     @staticmethod
     def bubble_sort(a_list):
-        """冒泡排序"""
+        """排序"""
         list_length = len(a_list)
         if list_length <= 1:
             return a_list
@@ -158,7 +158,7 @@ class Sort(object):
             return a_list
 
         _max = max(a_list)
-        buckets = [0 for _ in xrange(0, _max + 1)]
+        buckets = [0 for _ in range(0, _max + 1)]
         for x in a_list:
             buckets[x] += 1
 
@@ -287,9 +287,14 @@ class Find(object):
     @staticmethod
     def sqrt(x):
         """求一个数的算数平方根，精确到小数点后6位"""
-        low = 0
         mid = x / 2.0
-        high = x
+        if x > 1:
+            low = 0
+            high = x
+        else:
+            low = x
+            high = 1
+
         while abs(mid ** 2 - x) > 0.000001:
             if mid ** 2 < x:
                 low = mid
@@ -298,6 +303,130 @@ class Find(object):
             mid = (low + high) / 2
         return round(mid, 6)
 
+
+class Node(object):
+    def __init__(self, elem):
+        self.elem = elem
+        self.next = None
+
+
+class SingleLinkList(object):
+    def __init__(self, node=None):
+        self._head = node
+
+    def length(self):
+        cur = self._head
+        count = 0
+        while cur:
+            cur = cur.next
+            count += 1
+        return count
+
+    def travel(self):
+        cur = self._head
+        while cur:
+            print(cur.elem, end=" ")
+            cur = cur.next
+        print("")
+
+    def add(self, item):
+        node = Node(item)
+        node.next = self._head
+        self._head = node
+
+    def insert(self, item, index):
+        node = Node(item)
+        if not self._head:
+            self._head = node
+        else:
+            cur = self._head
+            while cur:
+                if cur.elem == index:
+                    node.next = cur.next
+                    cur.next = node
+                    break
+                else:
+                    cur = cur.next
+
+    def remove(self, item):
+        cur = self._head
+        pre = None
+        while cur:
+            if cur.elem == item:
+                if cur == self._head:
+                    self._head = cur.next
+                else:
+                    pre.next = cur.next
+                break
+            else:
+                pre = cur
+                cur = cur.next
+
+    def remove_by_index(self, index):
+        """删除倒数第n个节点"""
+        slow, fast = self._head, self._head
+        i = 0
+        while i <= index and fast:
+            fast = fast.next
+            i+=1
+        while fast:
+            fast = fast.next
+            slow = slow.next
+        slow.next = slow.next.next
+        return self._head
+
+    def reverse(self):
+        cur = self._head
+        pre = None
+        while cur:
+            tmp = cur.next
+            cur.next = pre
+            pre = cur
+            self._head = cur
+            cur = tmp
+
+    def has_cycle(self):
+        slow, fast = self._head, self._head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow == fast:
+                return True
+        return False
+
+    def find_middle_node(self):
+        slow = self._head
+        fast = self._head.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        return slow
+
+    def get_node_by_index(self, index):
+        if index > self.count:
+            print(None)
+        else:
+            i = 0
+            cur = self._head
+            while i < self.count - index:
+                cur = cur.next
+                i += 1
+            print(cur.data)
+
+    @staticmethod
+    def merge_two_list(l1, l2):
+        node = Node(0)
+        pre = node
+        while l1 and l2:
+            if l1.val < l2.val:
+                pre.next = l1
+                l1 = l1.next
+            else:
+                pre.next = l2
+                l2 = l2.next
+            pre = pre.next
+        pre.next = l1 if l1 else l2
+        return node.next
 
 class Heap(object):
     """大顶堆的定义，实现插入和删除"""
@@ -633,6 +762,769 @@ class StringMatching(object):
         return -1
 
 
+class Trie:
+    """前缀树"""
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.Trie = {}
+
+    def insert(self, word):
+        """
+        Inserts a word into the trie.
+        :type word: str
+        :rtype: void
+        """
+        curr = self.Trie
+        for w in word:
+            if w not in curr:
+                curr[w] = {}
+            curr = curr[w]
+        curr['#'] = 1
+        print(self.Trie)
+
+    def search(self, word):
+        """
+        Returns if the word is in the trie.
+        :type word: str
+        :rtype: bool
+        """
+        curr = self.Trie
+        for w in word:
+            if w not in curr:
+                return False
+            curr = curr[w]
+        return "#" in curr
+
+    def starts_with(self, prefix):
+        """
+        Returns if there is any word in the trie that starts with the given prefix.
+        :type prefix: str
+        :rtype: bool
+        """
+        curr = self.Trie
+        for w in prefix:
+            if w not in curr:
+                return False
+            curr = curr[w]
+        return True
+
+
+class TrieNode(object):
+    __slots__ = ['value', 'next_node', 'fail', 'emit']  # 限制实例的属性只能是这四个
+
+    def __init__(self, value):
+        self.value = value
+        self.next_node = dict()
+        self.fail = None
+        self.emit = None  # 当到达叶子节点时记录此时的路径，也就是一个完整的字符串
+
+
+class AcAutoTrie(object):
+    __slots__ = ['_root']  # 限制实例的属性只有一个
+
+    def __init__(self, words):
+        self._root = self._build_trie(words)
+        self._build_fail()
+
+    @staticmethod
+    def _build_trie(words):
+        """使用 words 构建 trie 树"""
+        assert isinstance(words, list) and words
+        root = TrieNode('root')
+        for word in words:
+            node = root
+            for c in word:
+                if c not in node.next_node:  # 如果字符在子节点中不存在，则以字符 c 为value 生成一个 TrieNode
+                    node.next_node[c] = TrieNode(c)  # 并以字符 c 为 key 放入当前 node 的子节点中
+                node = node.next_node.get(c)  # 并将当前的 node 更新为 以 c 为value 生成一个 TrieNode
+            node.emit = word  # 历遍完一个 word 之后，说明到底树的叶子节点了
+
+        return root
+
+    def _build_fail(self):
+        """构建失败指针"""
+        queue = []
+        queue.insert(0, (self._root, None))  # 将 root 节点和 root 节点的父节点放入到队列中
+        while len(queue) > 0:
+            node_parent = queue.pop()
+            curr, parent = node_parent[0], node_parent[1]  # 取出队列中的一个 node 和其父 node
+            for sub in curr.next_node.itervalues():  # 历遍当前 node  所有子 node 全部放入队列中
+                queue.insert(0, (sub, curr))
+            if parent is None:  # 如果当前节点是 root 节点则跳过循环
+                continue
+            elif parent is self._root:  # 如果当前节点的父节点是 root 则将当前节点的失败指针指向 root
+                curr.fail = self._root
+            else:
+                fail = parent.fail  # 否则就一直找啊找, 这里的 fail 其实很多时候等于 root 的
+                while fail and curr.value not in fail.next_node:
+                    fail = fail.fail
+                if fail:  # 直到有一个失败指针指向的节点假设叫X吧，当前节点的值在X的子节点里存在
+                    curr.fail = fail.next_node.get(curr.value)  # 那么就把当前节点的失败指针指向X的那个与当前节点相等的子节点
+                else:
+                    curr.fail = self._root  # 如果全部都都找完了也没找到，那就把当前节点的失败指针指向 root
+
+    def search(self, s):
+        """AC 自动的搜索匹配"""
+        seq_list = []  # 用来保存返回结果的列表
+        node = self._root  # 从 root 节点开始
+        for i, c in enumerate(s):  # 历遍字符串 s 里的每个字符，其中 i 是字符 c 在 s 里的索引
+            while c not in node.next_node and node != self._root:  # 一直循环去查找，直到字符 c 在当前节点的子节点中存在，
+                node = node.fail  # 或者当前节点是 root 节点了就停止查找
+            node = node.next_node.get(c)  # 将当前的 node 更新为等于它自己的值等于 c 的那个子 node
+            if not node:
+                node = self._root  # 如果不存在这么一个子 node 那上面的 while 循环肯定是满足 node = self._root 的
+            temp = node
+            while temp != self._root:  # 如果此时字符 c 不匹配任何当前 node 的子 node 则跳过下面的循环，继续去找下一个字符
+                if temp.emit:  # 否则，如果循环到字符 c 时候已经到了树的叶子节点了，说明找到了匹配的字符
+                    from_index = i - len(temp.emit) + 1  # 计算匹配到的字符的起始位置
+                    match_info = (from_index, temp.emit)
+                    seq_list.append(match_info)
+                temp = temp.fail
+        return seq_list
+
+
+class DivideAndConquer:
+    """分治算法案列"""
+
+    def __init__(self):
+        self.num = 0
+
+    def count_reverse_size(self, a_list, low, high):
+        """计算数组的逆序度"""
+        if low >= high:
+            return
+        mid = (low + high) / 2
+        self.count_reverse_size(a_list, low, mid)
+        self.count_reverse_size(a_list, mid + 1, high)
+
+        self.merge_reverse_size(a_list, low, mid, high)
+
+    def merge_reverse_size(self, a_list, low, mid, high):
+        """计算数组的逆序度指归并"""
+        i = low
+        j = mid + 1
+        k = 0
+        temp = [None] * (high - low + 1)  # 构建一个临时的数组
+        while i <= mid and j <= high:  # 用数组的前半部分和后半部分依次比较
+            if a_list[i] <= a_list[j]:  # 如果前半部分的元素小于后半部分的
+                temp[k] = a_list[i]  # 将前部分的元素放到临时数组中，后半部分索引不变，前半部分所以加 1
+                k += 1
+                i += 1
+            else:  # 如果前半部分的元素大于后半部分的
+                self.num += mid - i + 1  # 前半部分剩下的元素都比 a_list[j] 大，这些元素的个数就是逆序度
+                temp[k] = a_list[j]
+                k += 1
+                j += 1
+        while i <= mid:  # 处理前部分剩下的元素
+            temp[k] = a_list[i]
+            k += 1
+            i += 1
+        while j <= high:  # 处理后半部分剩下的元素
+            temp[k] = a_list[j]
+            k += 1
+            j += 1
+        for i in range(0, high - low + 1):
+            a_list[low + i] = temp[i]
+
+
+class Backtracking(object):
+    """回朔算法案列分析"""
+
+    def __init__(self):
+        self.result = [None] * 8  # 存储 8 皇后问题的结果，下标表示行，值表示皇后存储的列
+        self.count = 0  # 八皇后所有可能排列位置数
+
+    def cal_8_queens(self, row):
+        if row == 8:  # 8个棋子都放置好了，打印结果
+            self.count += 1
+            self.print_queens()
+            print('-' * 20)
+            return
+
+        for column in range(0, 8):  # 每一行有 8个放法
+            if self.is_column_ok(row, column):
+                self.result[row] = column  # 第 row 行的棋子放在 column 列
+                self.cal_8_queens(row + 1)  # 计算下一个
+
+    def is_column_ok(self, row, column):
+        left_column = column - 1
+        right_column = column + 1
+        for i in range(row - 1, -1, -1):  # 逐行往上考察
+            if self.result[i] in [column, left_column, right_column]:  # 检查上一行,对角线上, 右上对角线上是否有皇后
+                return False
+            left_column -= 1
+            right_column -= 1
+            i -= 1
+        return True
+
+    def print_queens(self):
+        for row in range(0, 8):
+            column_str = ""
+            for column in range(0, 8):
+                if self.result[row] == column:
+                    column_str += "Q "
+                else:
+                    column_str += "* "
+            print(column_str)
+
+
+class Patten:
+    """回朔法实现正则表达式"""
+
+    def __init__(self, patten):
+        self.matched = True
+        self.patten = patten  # 正则表达式
+        self.p_len = len(patten)  # 正则表达式长度
+
+    def match(self, text):
+        self.matched = False
+        self.re_match(0, 0, text)
+        return self.matched
+
+    def re_match(self, text_index, patten_index, text):
+        if self.matched:
+            return
+        if patten_index == self.p_len:  # 正在表达式到结尾了
+            if text_index == len(text):  # 文本串也到结尾了
+                self.matched = True
+            return
+        if self.patten[patten_index] == "*":  # 匹配任意字符
+            for k in range(0, len(text) - text_index + 1):
+                self.re_match(text_index + k, patten_index + 1, text)
+        elif self.patten[patten_index] == "?":  # 0 个或一个字符
+            self.re_match(text_index, patten_index + 1, text)
+            self.re_match(text_index + 1, patten_index + 1, text)
+
+        elif text_index < len(text) and self.patten[patten_index] == text[text_index]:  # 纯字符匹配才行
+            self.re_match(text_index + 1, patten_index + 1, text)
+
+
+class Backpack:
+    def __init__(self):
+        self.max_weight = -1  # tracking the max weight
+        self.max_value = -1  # tracking the max value
+
+    def backpack(self, i, cw, items, w):
+        """
+        只满足背包重量最大
+        0-1 背包 问题
+        :param i: the ith item, integer
+        :param cw:  current weight, integer
+        :param items:  python list of item weights
+        :param w: upper limit weight the backpack can load
+        :return:
+        """
+
+        if cw == w or i == len(items):  # base case
+            if cw > self.max_weight:
+                self.max_weight = cw
+            return
+
+        self.backpack(i + 1, cw, items, w)  # 递归调用表示不选择当前物品，直接考虑下一个（第 i+1 个），故 cw 不更新
+        if cw + items[i] <= w:
+            self.backpack(i + 1, cw + items[i], items, w)  # 递归调用表示选择了当前物品，故考虑下一个时，cw 通过入参更新为 cw + items[i]
+
+    def backpack2(self, i, cw, items, w):
+        """
+        只满足背包重量最大,用一个二维数组记录之前已经计算的值，避免重复计算
+        0-1 背包 问题
+        :param i: the ith item, integer
+        :param cw:  current weight, integer
+        :param items:  python list of item weights
+        :param w: upper limit weight the backpack can load
+        :return:
+        """
+        mem = [[False for _ in range(w + 2)] for _ in range(len(items) + 1)]
+        if cw == w or i == len(items):  # base case
+            if cw > self.max_weight:
+                self.max_weight = cw
+            return
+        if mem[i][cw]:
+            return
+        mem[i][cw] = True
+        self.backpack2(i + 1, cw, items, w)  # 递归调用表示不选择当前物品，直接考虑下一个（第 i+1 个），故 cw 不更新
+        if cw + items[i] <= w:
+            self.backpack2(i + 1, cw + items[i], items, w)  # 递归调用表示选择了当前物品，故考虑下一个时，cw 通过入参更新为 cw + items[i]
+
+    def backpack3(self, i, w, cw, cv, items, values):
+        """
+        在满足背包最大重量限制的前提下，求背包中可装入物品的总价值最大是多少？
+        0-1 背包 问题
+        :param i: the ith item, integer
+        :param cw:  current weight, integer
+        :param items:  python list of item weights
+        :param values:  python list of item values
+        :param w: upper limit weight the backpack can load
+        :param cv:  current value, integer
+        :return:
+        """
+        if cw == w or i == len(items):  # cw == w 表示装满了， i==n 表示物品都考察完了
+            if cv > self.max_value:
+                self.max_value = cv
+            return
+
+        self.backpack3(i + 1, w, cw, cv, items, values)  # 递归调用表示不选择当前物品，直接考虑下一个（第 i+1 个），故 cw 不更新
+        if cw + items[i] <= w:
+            # 递归调用表示选择了当前物品，故考虑下一个时，cw 通过入参更新为 cw + items[i]
+            self.backpack3(i + 1, w, cw + items[i], cv + values[i], items, values)
+
+    @staticmethod
+    def backpack4():
+        """有依赖情况的背包问题"""
+        N, M = 3200, 60
+        f = [0] * N
+        # 分组背包，每组有四种情况，a.主件 b.主件+附件1 c.主件+附件2 d.主件+附件1+附件2
+        v = [[0 for i in range(4)] for j in range(M)]  # 金额
+        w = [[0 for i in range(4)] for j in range(M)]  # 价值
+
+        # n, m = map(int, input().split())
+        n, m = 1500, 7
+        # n //= 10  # 价格为10的整数倍，节省时间
+
+        for i in range(1, m + 1):
+            for inp in ["500 1 0", "400 4 0", "300 5 1", "400 5 1", "200 5 0", "500 4 0", "400 4 0"]:
+                x, y, z = map(int, inp.split())
+                # x //= 10
+                if z == 0:
+                    for t in range(4):
+                        v[i][t] = v[i][t] + x
+                        w[i][t] = w[i][t] + x * y
+
+                elif v[z][1] == v[z][0]:  # 如果a==b，添加附件1(如果a=b=c=d说明没有附件)
+                    v[z][1], w[z][1] = v[z][1] + x, w[z][1] + x * y
+                    v[z][3], w[z][3] = v[z][3] + x, w[z][3] + x * y
+
+                else:  # 添加附件2
+                    v[z][2], w[z][2] = v[z][2] + x, w[z][2] + x * y
+                    v[z][3], w[z][3] = v[z][3] + x, w[z][3] + x * y
+
+        for i in range(1, m + 1):
+            for j in range(n, -1, -1):
+                for k in range(4):
+                    if j >= v[i][k]:
+                        f[j] = max(f[j], f[j - v[i][k]] + w[i][k])
+        print(9 * f[n])
+
+    @staticmethod
+    def double11advance(items, n, w):
+        """
+        :param items:商品价格列表
+        :param n: 商品个数
+        :param w: 表示满减条件，比如 200
+        :return:
+        """
+        states = [[False for _ in range(3 * w + 1)] for _ in range(n)]  # 默认值为 None
+        states[0][0] = True  # 第一行的数据要特殊处理
+        if items[0] <= 3 * w:
+            states[0][items[0]] = True
+
+        for i in range(1, n):  # 动态规划
+            for j in range(0, 3 * w + 1):  # 不购买第 i 个商品
+                if states[i - 1][j]:
+                    states[i][j] = states[i - 1][j]
+            for j in range(0, 3 * w - items[i] + 1):  # 购买第 i 个商品
+                if states[i - 1][j]:
+                    states[i][j + items[i]] = True
+
+        j = None
+        for j in range(w, 3 * w + 1):
+            if states[n - 1][j]:  # 输出结果大于等于 w 的最小值
+                break
+
+        if j >= 3 * w:  # 没有可行性解
+            return
+
+        for i in range(n - 1, 0, -1):
+            if j - items[i] >= 0 and states[i - 1][j - items[i]]:  # i 表示二维数组中的行，j 表示列
+                print(items[i], ":buy")  # 购买这个商品
+                j = j - items[i]
+            else:
+                print("not buy")  # 没有购买这个商品 j_index 没有变
+        if j != 0:
+            print(items[0], ":buy")  # 购买这个商品
+
+
+class Dist:
+    """编辑距离"""
+
+    def __init__(self):
+        self.matrix = [[]]
+        self.mem = []
+
+    def min_dist_bt(self, i, j, dist, w, n):
+        """
+        :param i: 行下标
+        :param j: 列下标
+        :param dist: 当前的距离
+        :param w: 一个二维数组，记录每个格子的距离值
+        :param n: 一个多少个格子
+        :return: 调用方式：min_dist_bt(0, 0, 0, [[1,3,5,9],[2,1,3,4],[5,2,6,7],[6,8,4,3]], 3)
+        """
+        global res
+        if i == n and j == n:  # 到到 n-1位置了
+            current_dist = dist + w[i][j]  # 到达指定位置时的路径数据之和，这里加上了指定位置自己的值
+            if current_dist < res:
+                res = current_dist
+                print(res)
+            return
+        if i < n:  # 往下走，更新 i = i+1, j = j
+            self.min_dist_bt(i + 1, j, dist + w[i][j], w, n)
+        if j < n:  # 往右走，更新 i = i, j = j + 1
+            self.min_dist_bt(i, j + 1, dist + w[i][j], w, n)
+
+    @staticmethod
+    def min_dist_dp(matrix, n):
+        """
+        :param matrix: 一个二维数组，记录每个格子的距离值
+        :param n: 一个多少个格子
+        :return: 调用方式：min_dist_dp([[1,3,5,9],[2,1,3,4],[5,2,6,7],[6,8,4,3]], 3)
+        """
+        states = [[0 for _ in range(n)] for _ in range(n)]
+        sum_dist = 0
+        for j in range(0, n):  # 初始化 states 的第一行数据
+            sum_dist += matrix[0][j]
+            states[0][j] = sum_dist
+
+        sum_dist = 0
+        for i in range(0, n):  # 初始化 states 的第一列数据
+            sum_dist += matrix[i][0]
+            states[i][0] = sum_dist
+
+        for i in range(1, n):
+            for j in range(1, n):
+                states[i][j] = matrix[i][j] + min(states[i][j - 1], states[i - 1][j])
+        return states[n - 1][n - 1]
+
+
+
+    def min_dist_zt(self, i, j):
+        """
+        :param i: 行下标
+        :param j: 列下标
+        :return 调用方式：min_dist_zt(n-1, n-1)
+        """
+        # global matrix, n, mem
+
+        if i == 0 and j == 0:
+            return self.matrix[0][0]
+
+        if self.mem[i][j] > 0:
+            return self.mem[i][j]
+
+        min_left = sys.maxint
+        if j - 1 >= 0:
+            min_left = self.min_dist_zt(i, j - 1)
+
+        min_right = sys.maxint
+        if i - 1 >= 0:
+            min_right = self.min_dist_zt(i - 1, j)
+
+        current_min_dist = self.matrix[i][j] + min(min_left, min_right)
+        self.mem[i][j] = current_min_dist
+        return current_min_dist
+
+
+    def lwst_bt(self, i, j, e_dist, a_str, b_str, min_dist):
+        """
+        :param i: 字符串 a_str 的下标
+        :param j: 字符串 b_str 的下标
+        :param e_dist: 当前的编辑距离
+        :param a_str: 字符串
+        :param b_str: 字符串
+        :param min_dist: 记录最小的编辑距离
+        :return: 回朔法计算两个字符串的编辑距离 如：lwst_bt(0,0,0,"mitcmu","mtacnu",sys.maxint)
+        """
+        a_str_l = len(a_str)
+        b_str_l = len(b_str)
+        if i == a_str_l or j == b_str_l:
+            if i < a_str_l:
+                e_dist += a_str_l - i
+            if j < b_str_l:
+                e_dist += b_str_l - j
+            if e_dist < min_dist:
+                min_dist = e_dist
+            print(min_dist)
+            return
+        if a_str[i] == b_str[j]:  # 两个字符匹配
+            self.lwst_bt(i + 1, j + 1, e_dist, a_str, b_str, min_dist)
+        else:  # 两个字符不匹配
+            self.lwst_bt(i + 1, j, e_dist + 1, a_str, b_str, min_dist)  # 删除 a_str[i] 或者在 b_str[j] 前面添加一个跟 a_str[i] 相同的字符
+            self.lwst_bt(i, j + 1, e_dist + 1, a_str, b_str, min_dist)  # 删除 b_str[j] 或者在 a_str[i] 前面添加一个跟 b_str[j] 相同的字符
+            self.lwst_bt(i + 1, j + 1, e_dist + 1, a_str, b_str, min_dist)  # 将 a_str[i] 和 b_str[j] 替换为相同字符
+
+
+    def lwst_dp(self, a_str, b_str):
+        """
+        :param a_str: 字符串
+        :param b_str: 字符串
+        :return:
+        """
+        n = len(a_str)
+        m = len(b_str)
+        min_dist = [[0 for _ in range(m)] for _ in range(n)]
+        for j in range(0, m):  # 初始化第 0 行
+            if a_str[0] == b_str[j]:
+                min_dist[0][j] = j
+            elif j != 0:
+                min_dist[0][j] = min_dist[0][j - 1] + 1
+            else:
+                min_dist[0][j] = 1
+
+        for i in range(0, n):  # 初始化第 0 列
+            if b_str[0] == a_str[i]:
+                min_dist[i][0] = i
+            elif i != 0:
+                min_dist[i][0] = min_dist[i - 1][0] + 1
+            else:
+                min_dist[i][0] = 1
+
+        for i in range(1, n):  # 按行填表
+            for j in range(1, m):
+                if a_str[i] == b_str[j]:
+                    min_dist[i][j] = min(min_dist[i - 1][j] + 1, min_dist[i][j - 1] + 1, min_dist[i - 1][j - 1])
+                else:
+                    min_dist[i][j] = min(min_dist[i - 1][j] + 1, min_dist[i][j - 1] + 1, min_dist[i - 1][j - 1] + 1)
+
+        return min_dist[n - 1][m - 1]
+
+
+    def lcs(self, a_str, b_str):
+        """ 计算编辑距离
+            :param a_str: 字符串
+            :param b_str: 字符串
+            :return:
+            """
+        n = len(a_str)
+        m = len(b_str)
+        edit = [[i + j for j in range(len(b_str) + 1)] for i in range(len(a_str) + 1)]
+        for x in range(1, n + 1):
+            for y in range(1, m + 1):
+                if a_str[x - 1] == b_str[y - 1]:
+                    d = 0
+                else:
+                    d = 1
+                edit[x][y] = min(edit[x - 1][y] + 1, edit[x][y - 1] + 1, edit[x - 1][y - 1] + d)
+        return edit[len(a_str)][len(b_str)]
+
+
+class Dijkstra:
+    """戴克斯特拉算法"""
+    def __init__(self):
+        self.graph = {}  # 记录地图指向关系，和相应的权重
+        self.costs = {}  # 记录从起点到每个点的距离
+        self.parents = {}  # 记录每个点的父节点
+        self.processed = []  # 记录以及处理里的节点
+
+    def add_edge(self, s, t, w):  # s 先于 t, 边 s -> t
+        if not self.graph.get(s):
+            self.graph[s] = {}
+        if t and w:
+            self.graph[s][t] = w
+
+    def dijkstra(self):
+        node = self.find_lowest_cost_node()  # 在未处理的节点中找出开销最小的节点
+        while node is not None:  # while循环在所有节点都被处理过后结束
+            cost = self.costs[node]
+            neighbors = self.graph[node]
+            for n in neighbors.keys():
+                new_cost = cost + neighbors[n]
+                if self.costs[n] > new_cost:  # 如果经当前节点前往该邻居更近
+                    self.costs[n] = new_cost  # 更新该邻居节点的开销
+                    self.parents[n] = node  # 该邻居节点的父节点设置为当前节点
+            self.processed.append(node)  # 将当前节点标记为处理过
+            node = self.find_lowest_cost_node()  # 找出接下来要处理的节点，并循环
+        print(self.costs)
+        print(self.parents)
+
+    def find_lowest_cost_node(self):
+        lowest_cost = float("inf")
+        lowest_cost_node = None
+        for node in self.costs:  # 遍历所有的节点
+            cost = self.costs[node]
+            if cost < lowest_cost and node not in self.processed:
+                lowest_cost = cost  # 就将其视为开销最低的节点
+                lowest_cost_node = node
+        return lowest_cost_node
+
+
+class AStar:
+    def __init__(self):
+        self.graph = {}  # 记录地图指向关系，和相应的权重
+        self.costs = {}  # 记录从起点到每个点的距离
+        self.parents = {}  # 记录每个点的父节点
+        self.processed = []  # 记录以及处理里的节点
+
+    def add_edge(self, s, t, w, f):  # s 先于 t, 边 s -> t
+        if not self.graph.get(s):
+            self.graph[s] = {}
+        if t and f:
+            self.graph[s][t]["w"] = w
+            self.graph[s][t]["f"] = f
+
+    def dijkstra(self):
+        node = self.find_lowest_f_node()  # 在未处理的节点中找出开销最小的节点
+        while node is not None:  # while循环在所有节点都被处理过后结束
+            cost = self.costs[node]
+            neighbors = self.graph[node]
+            for n in neighbors.keys():
+                new_cost = cost + neighbors[n]
+                if self.costs[n] > new_cost:  # 如果经当前节点前往该邻居更近
+                    self.costs[n] = new_cost  # 更新该邻居节点的开销
+                    self.parents[n] = node  # 该邻居节点的父节点设置为当前节点
+            self.processed.append(node)  # 将当前节点标记为处理过
+            node = self.find_lowest_f_node()  # 找出接下来要处理的节点，并循环
+        print(self.costs)
+        print(self.parents)
+
+    def find_lowest_f_node(self):
+        lowest_f = float("inf")
+        lowest_f_node = None
+        for node in self.costs:  # 遍历所有的节点
+            f = self.costs[node]
+            if f < lowest_f and node not in self.processed:
+                lowest_f = f  # 就将其视为开销最低的节点
+                lowest_f_node = node
+        return lowest_f_node
+
+
+class Bitmap:
+    def __init__(self, max_value):
+        """确定所需数组个数"""
+        self.size = int((max_value + 31 - 1) / 31)  # 初始化bitmap 向上取整
+        self.array = [0 for _ in range(self.size)]
+
+    def set_1(self, num):
+        """将元素所在的位置1"""
+        elem_index = num / 31  # 计算在数组中的索引
+        byte_index = num % 31  # 计算在数组中的位索引
+        ele = self.array[elem_index]
+        self.array[elem_index] = ele | (1 << byte_index)  # 相关位置1, 左移 byte_index 位相当于乘以2的 byte_index 次方
+
+    def test_1(self, num):
+        """检测元素存在的位置"""
+        elem_index = num / 31
+        byte_index = num % 31
+        if self.array[elem_index] & (1 << byte_index):
+            return True
+        return False
+
+
+class BaseConversion:
+    """进制转换"""
+    @staticmethod
+    def bin_or_oct_to_dec(num, base):
+        """二进制, 八进制, 转十进制, base =2,8"""
+        result = 0
+        length = len(num)
+        for x in range(length):
+            result += base ** x * int(num[length - x - 1])
+        return result
+        # return int(num,2)
+        # return int(num,8)
+
+    @staticmethod
+    def hex_to_dec(num):
+        """16进制转 10进制 """
+        base = [str(x) for x in range(10)] + [chr(x) for x in
+                                              range(ord('A'), ord("A") + 6)]  # 前者把 0 ~ 9 转换成字符串存进列表 base 里，后者把 A ~ F 存进列表
+        # 相当于 base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+        result = 0
+        length = len(num)
+        for x in range(length):
+            result += 16 ** x * int(base.index(num[length - x - 1]))
+        return result
+        # return int(num,16)
+
+    def dec_to_bin_or_oct(self, num, base):
+        """十进制转二进制 或八进制 base=2 或者 8"""
+        l = []  # 创建一个空列表
+        if num < 0:  # 是负数转换成整数
+            return "-" + self.dec_to_bin_or_oct(abs(num), base)  # 如过是负数，先转换成正数
+        while True:
+            num, reminder = divmod(num, base)  # 短除法，对2求，分别得到除数 和 余数、这是 Python 的特有的一个内置方法，分别可以到商 及 余数
+            l.append(str(reminder))  # 把获得的余数 存入字符串
+            if num == 0:  # 对应了前面的话，当商为 0时，就结束啦
+                return "".join(l[::-1])  # 对列表中的字符串进行逆序拼接，得到一个二进制字符串
+                # return bin(num)
+                # return oct(num)
+
+
+    def dec_to_hex(self, num):
+        """十进制转十六进制（这个相对麻烦一点，因为，十六进制包含 A-F，大小写不敏感）"""
+        base = [str(x) for x in range(10)] + [chr(x) for x in
+                                              range(ord('A'), ord("A") + 6)]  # 前者把 0 ~ 9 转换成字符串存进列表 base 里，后者把 A ~ F 存进列表
+        # 相当于 base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+        l = []
+        if num < 0:
+            return "-" + self.dec_to_hex(abs(num))
+        while True:
+            num, rem = divmod(num, 16)  # 求商 和 留余数
+            l.append(base[rem])
+            if num == 0:
+                return "".join(l[::-1])
+                # return hex(num)
+
+    @staticmethod
+    def ip2bin(mask):
+        """
+        ip地址转换为二进制数
+        :param mask:
+        :return: string类型
+        """
+        l = list()
+        for i in mask:
+            _ip = bin(i)[2:]
+            if len(str(_ip)) < 8:
+                _ip = "0" * (8 - len(str(_ip))) + str(_ip)
+            l.extend(_ip)
+        return ''.join(str(j) for j in l)
+
+    def check_mask(self, mask):
+        """
+        检查子网掩码是否合法
+        :param mask: 存储mask四个十进制位的列表
+        :return: mask合法返回True
+        """
+        if mask in ([255, 255, 255, 255], [0, 0, 0, 0]):
+            return False
+        b_ip = self.ip2bin(mask)
+        flag = False  # 是否碰到了0
+        for i, c in enumerate(b_ip):
+            if flag:
+                if c == '1':
+                    return False
+            else:
+                if c == '0':
+                    flag = True
+        else:
+            return True
+
+    @staticmethod
+    def check_ip_is_ok(ip):
+        try:
+            ip_arr = str(ip).split(".")
+            for i in ip_arr:
+                if int(i) < 0 or int(i) > 255:
+                    return False
+            return True
+        except:
+            return False
+
+    @staticmethod
+    def check_mask_is_ok(mask):
+        try:
+            mask_arr = str(mask).split(".")
+            for i in mask_arr:
+                bin_str = bin(i).replace("0b", "")
+                if len(bin_str) < 8 and "1" in str(bin_str):
+                    return False
+            return True
+        except:
+            return False
+
 if __name__ == "__main__":
-    s = StringMatching()
-    print(s.kmp("dferrcbacbagrgrgk", "cbacba"))
+    aa = (Find.sqrt(0.09))
+    print(Find.sqrt(0.8))
