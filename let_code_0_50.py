@@ -513,6 +513,30 @@ class Solution10:
 
         return dfs(text, pattern)
 
+    @staticmethod
+    def is_match_1(s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+
+        def matches(i: int, j: int) -> bool:
+            if i == 0:
+                return False
+            if p[j - 1] == '.':
+                return True
+            return s[i - 1] == p[j - 1]
+
+        f = [[False] * (n + 1) for _ in range(m + 1)]
+        f[0][0] = True
+        for i in range(m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == '*':
+                    f[i][j] |= f[i][j - 2]
+                    if matches(i, j - 1):
+                        f[i][j] |= f[i - 1][j]
+                else:
+                    if matches(i, j):
+                        f[i][j] |= f[i - 1][j - 1]
+        return f[m][n]
+
 
 class Solution11:
     """
@@ -1702,6 +1726,7 @@ class Solution40:
     ]
 
     """
+
     @staticmethod
     def combination_sum2(candidates: List[int], target: int) -> List[List[int]]:
 
@@ -1728,7 +1753,6 @@ class Solution40:
 
 
 class Solution41:
-
     """
     41. 缺失的第一个正数
     https://leetcode-cn.com/problems/first-missing-positive/
@@ -1743,6 +1767,7 @@ class Solution41:
     输出：2
 
     """
+
     # 3 应该放在索引为 2 的地方
     # 4 应该放在索引为 3 的地方
 
@@ -1885,13 +1910,14 @@ class Solution44:
     解释: 第一个 '*' 可以匹配空字符串, 第二个 '*' 可以匹配字符串 "dce".
 
     """
+
     @staticmethod
     def is_match(s: str, p: str) -> bool:
         m, n = len(s), len(p)
 
-        dp = [[False] * (n + 1) for _ in range(m + 1)]
-        dp[0][0] = True
-        for i in range(1, n + 1):
+        dp = [[False] * (n + 1) for _ in range(m + 1)]  # dp[i][0]=False，即空模式无法匹配非空字符串；
+        dp[0][0] = True  # dp[0][0]=True，即当字符串 ss 和模式 pp 均为空时，匹配成功
+        for i in range(1, n + 1):  # dp[0][j] 需要分情况讨论：因为星号才能匹配空字符串，所以只有当模式p的前j个字符均为星号时，dp[0][j] 才为真。
             if p[i - 1] == '*':
                 dp[0][i] = True
             else:
@@ -1900,13 +1926,178 @@ class Solution44:
         for i in range(1, m + 1):
             for j in range(1, n + 1):
                 if p[j - 1] == '*':
-                    dp[i][j] = dp[i][j - 1] | dp[i - 1][j]
-                elif p[j - 1] == '?' or s[i - 1] == p[j - 1]:
+                    dp[i][j] = dp[i][j - 1] | dp[i - 1][j]  # 不使用这个星号 dp[i][j - 1]， 使用这个星号 dp[i - 1][j]
+                elif p[j - 1] == '?' or s[i - 1] == p[j - 1]:  # 问号和2个字母完全匹配的情况
                     dp[i][j] = dp[i - 1][j - 1]
 
         return dp[m][n]
 
 
+class Solution45:
+    """
+    45. 跳跃游戏 II
+    https://leetcode-cn.com/problems/jump-game-ii/
+    给你一个非负整数数组 nums ，你最初位于数组的第一个位置。
+    数组中的每个元素代表你在该位置可以跳跃的最大长度。
+    你的目标是使用最少的跳跃次数到达数组的最后一个位置。
+    假设你总是可以到达数组的最后一个位置。
+
+    nums = [2,3,1,1,4]
+    跳到最后一个位置的最小跳跃数是 2。
+    从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+
+    """
+
+    @staticmethod
+    def jump(nums: List[int]) -> int:
+        n = len(nums)
+        max_pos, end, step = 0, 0, 0
+        for i in range(n - 1):
+            if max_pos >= i:
+                max_pos = max(max_pos, i + nums[i])  # 维护当前能够到达的最大下标位置，记为边界。我们从左到右遍历数组，到达边界时，更新边界并将跳跃次数增加 1
+                if i == end:
+                    end = max_pos
+                    step += 1
+        return step
 
 
+class Solution46:
+    """
+    46. 全排列
+    https://leetcode-cn.com/problems/permutations/
+    给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
 
+    输入：nums = [1,2,3]
+    输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+    """
+
+    @staticmethod
+    def permute(nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+
+        def backtrack(first=0):
+            # 所有数都填完了
+            if first == len(nums):
+                res.append(nums[:])
+            for i in range(first, len(nums)):
+                # 动态维护数组
+                nums[first], nums[i] = nums[i], nums[first]
+                # 继续递归填下一个数
+                backtrack(first + 1)
+                # 撤销操作
+                nums[first], nums[i] = nums[i], nums[first]
+
+        res = []
+        backtrack()
+        return res
+
+
+class Solution47:
+    """
+    47. 全排列 II
+    https://leetcode-cn.com/problems/permutations-ii/
+    给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+
+    输入：nums = [1,1,2]
+    输出：
+    [[1,1,2],
+     [1,2,1],
+     [2,1,1]]
+    """
+
+    def __init__(self):
+        self.res = []
+
+    def permute_unique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        check = [0 for _ in range(len(nums))]
+
+        self.backtrack([], nums, check)
+        return self.res
+
+    def backtrack(self, sol, nums, check):
+        if len(sol) == len(nums):
+            self.res.append(sol)
+            return
+
+        for i in range(len(nums)):
+            if check[i] == 1:
+                continue
+            if i > 0 and nums[i] == nums[i - 1] and check[i - 1] == 0:
+                continue
+            check[i] = 1
+            self.backtrack(sol + [nums[i]], nums, check)
+            check[i] = 0
+
+
+class Solution48:
+    """
+    48. 旋转图像
+    https://leetcode-cn.com/problems/rotate-image/
+    给定一个 n × n 的二维矩阵 matrix 表示一个图像。请你将图像顺时针旋转 90 度。
+    你必须在 原地 旋转图像，这意味着你需要直接修改输入的二维矩阵。请不要 使用另一个矩阵来旋转图像。
+    输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+    输出：[[7,4,1],[8,5,2],[9,6,3]]
+    """
+
+    @staticmethod
+    def rotate(matrix: List[List[int]]) -> None:
+        n = len(matrix)
+        # 水平翻转
+        for i in range(n // 2):
+            for j in range(n):
+                matrix[i][j], matrix[n - i - 1][j] = matrix[n - i - 1][j], matrix[i][j]
+        # 主对角线翻转
+        for i in range(n):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+
+class Solution49:
+    """
+    49. 字母异位词分组
+    https://leetcode-cn.com/problems/group-anagrams/
+    给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+    字母异位词 是由重新排列源单词的字母得到的一个新单词，所有源单词中的字母通常恰好只用一次。
+
+    输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+    输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+    """
+
+    @staticmethod
+    def group_anagrams(str_list: List[str]) -> List[List[str]]:
+        mp = collections.defaultdict(list)
+
+        for st in str_list:
+            key = "".join(sorted(st))
+            mp[key].append(st)
+
+        return list(mp.values())
+
+
+class Solution50:
+    """
+    50. Pow(x, n)
+    https://leetcode-cn.com/problems/powx-n/
+    实现 pow(x, n) ，即计算 x 的 n 次幂函数（即，xn ）。
+    输入：x = 2.00000, n = 10
+    输出：1024.00000
+
+    输入：x = 2.10000, n = 3
+    输出：9.26100
+    """
+
+    @staticmethod
+    def myPow(x: float, n: int) -> float:
+        def quickMul(N):
+            if N == 0:
+                return 1.0
+            y = quickMul(N // 2)
+            return y * y if N % 2 == 0 else y * y * x
+
+        return quickMul(n) if n >= 0 else 1.0 / quickMul(-n)

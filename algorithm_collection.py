@@ -19,9 +19,7 @@ class Sort(object):
             flag = False
             for y in range(0, list_length - x - 1):
                 if a_list[y] > a_list[y + 1]:
-                    temp = a_list[y]
-                    a_list[y] = a_list[y + 1]
-                    a_list[y + 1] = temp
+                    a_list[y], a_list[y + 1] = a_list[y + 1], a_list[y]
                     flag = True
             if not flag:
                 return a_list
@@ -36,7 +34,6 @@ class Sort(object):
         for x in range(1, list_length):
             to_insert_value = a_list[x]
             y = x - 1
-
             while y >= 0:
                 if to_insert_value < a_list[y]:
                     a_list[y + 1] = a_list[y]
@@ -199,7 +196,7 @@ class Find(object):
         low = 0
         high = len(a_list) - 1
         while low <= high:
-            mid = low + (high - low) / 2
+            mid = low + (high - low) // 2
             if target == a_list[mid]:
                 return mid
             if target < a_list[mid]:
@@ -212,7 +209,7 @@ class Find(object):
         """二分查找算法 非递归实现"""
         if low > high:
             return -1
-        mid = low + (high - low) / 2
+        mid = low + (high - low) // 2
         if target == a_list[mid]:
             return mid
         if target < a_list[mid]:
@@ -226,14 +223,15 @@ class Find(object):
         low = 0
         high = len(a_list) - 1
         while low <= high:
-            mid = low + (high - low) / 2
-            if target <= a_list[mid]:
-                if target == a_list[mid] and target != a_list[mid - 1]:
-                    return mid
-                else:
-                    high = mid - 1
-            else:
+            mid = low + (high - low) // 2
+            if target < a_list[mid]:
+                high = mid - 1
+            elif target > a_list[mid]:
                 low = mid + 1
+            else:
+                if mid == 0 or a_list[mid - 1] != target:
+                    return mid
+                high = mid - 1
         return -1
 
     @staticmethod
@@ -242,25 +240,26 @@ class Find(object):
         low = 0
         high = len(a_list) - 1
         while low <= high:
-            mid = low + (high - low) / 2
-            if target >= a_list[mid]:
-                if target == a_list[mid] and target != a_list[mid + 1]:
-                    return mid
-                else:
-                    low = mid + 1
-            else:
+            mid = low + (high - low) // 2
+            if target > a_list[mid]:
+                low = mid + 1
+            elif target < a_list[mid]:
                 high = mid - 1
+            else:
+                if mid == len(a_list) - 1 or a_list[mid + 1] != target:
+                    return mid
+                low = mid + 1
         return -1
 
     @staticmethod
-    def b_last_than_search(a_list, target):
-        """查找最后一个大于等于目标值"""
+    def b_first_than_search(a_list, target):
+        """查找第一个大于等于目标值"""
         low = 0
         high = len(a_list) - 1
         while low <= high:
-            mid = low + (high - low) / 2
+            mid = low + (high - low) // 2
             if target <= a_list[mid]:
-                if mid == 0 or target > a_list[mid - 1]:
+                if mid == 0 or a_list[mid - 1] < target:
                     return mid
                 else:
                     high = mid - 1
@@ -274,9 +273,9 @@ class Find(object):
         low = 0
         high = len(a_list) - 1
         while low <= high:
-            mid = low + (high - low) / 2
+            mid = low + (high - low) // 2
             if target >= a_list[mid]:
-                if mid == len(a_list) - 1 or target < a_list[mid + 1]:
+                if mid == len(a_list) - 1 or a_list[mid + 1] > target:
                     return mid
                 else:
                     low = mid + 1
