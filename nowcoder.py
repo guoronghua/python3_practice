@@ -701,3 +701,80 @@ def fun_23():
             print(count0)
         except:
             break
+
+
+def fun_24():
+    """
+    密码截取
+    https://www.nowcoder.com/practice/3cd4621963e8454594f00199f4536bb1?tpId=37&tqId=21255&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    Catcher是MCA国的情报员，他工作时发现敌国会用一些对称的密码进行通信，比如像这些ABBA，ABA，A，123321，但是他们有时会在开始或结束时加入一些无关的字符以防止别国破解。比如进行下列变化 ABBA->12ABBA,ABA->ABAKK,123321->51233214　。因为截获的串太长了，而且存在多种可能的情况（abaaab可看作是aba,或baaab的加密形式），Cathcer的工作量实在是太大了，他只能向电脑高手求助，你能帮Catcher找出最长的有效密码串吗？
+    """
+
+    def longp(s):
+        res = ''
+        for i in range(len(s)):
+            # 先判定奇数的，从i开始左右对比
+            tmp = helper(s, i, i)
+            if len(tmp) > len(res): res = tmp
+            # 再判定偶数的，从i和i+1开始对比
+            tmp = helper(s, i, i + 1)
+            if len(tmp) > len(res): res = tmp
+        print(len(res))
+
+    def helper(s, l, r):
+        while l >= 0 and r < len(s) and s[l] == s[r]:
+            l -= 1
+            r += 1
+        return s[l + 1:r]
+
+    while True:
+        try:
+            s = input()
+            longp(s)
+        except:
+            break
+
+
+def fun_25():
+    """
+    整数与IP地址间的转换
+    https://www.nowcoder.com/practice/66ca0e28f90c42a196afd78cc9c496ea?tpId=37&tqId=21256&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入
+    1 输入IP地址
+    2 输入10进制型的IP地址
+
+    输出描述：
+    输出
+    1 输出转换成10进制的IP地址
+    2 输出转换后的IP地址
+    """
+    while True:
+        try:
+            ip = input()
+            num = input()
+            ip_arr = ip.split(".")
+
+            num_resp = ""
+            ip_res = []
+
+            num_flag = True
+            for x in ip_arr:
+                if int(x) > 255:
+                    num_flag = False
+                    continue
+                bin_num = bin(int(x)).replace("0b", "").rjust(8, '0')
+                num_resp += bin_num
+
+            if num_flag:
+                num_resp = str(int(num_resp, 2))
+                print(num_resp)
+
+            bin_num = bin(int(num)).replace("0b", "").rjust(32, '0')
+            for i in range(4):
+                ip_res.append(str(int(bin_num[8 * i:(i + 1) * 8], 2)))
+            if len(bin_num) <= 32:
+                print(".".join(ip_res))
+        except:
+            break
+
+
