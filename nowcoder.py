@@ -438,3 +438,266 @@ def fun_16():
     for v in ipClass2num.values():
         print(v, end=(' '))
 
+
+def fun_17():
+    """
+    密码验证合格程序
+    https://www.nowcoder.com/practice/184edec193864f0985ad2684fbc86841?tpId=37&tqId=21243&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    密码要求:
+
+    1.长度超过8位
+    2.包括大小写字母.数字.其它符号,以上四种至少三种
+    3.不能有长度大于2的不含公共元素的子串重复 （注：其他符号不含空格或换行）
+    """
+
+    def check(s):
+        if len(s) <= 8:
+            return 0
+        a, b, c, d = 0, 0, 0, 0
+        for item in s:
+            if ord('a') <= ord(item) <= ord('z'):
+                a = 1
+            elif ord('A') <= ord(item) <= ord('Z'):
+                b = 1
+            elif ord('0') <= ord(item) <= ord('9'):
+                c = 1
+            else:
+                d = 1
+        if a + b + c + d < 3:
+            return 0
+        # or repeat_sub = re.findall(r'(.{3,}).*\1', line) \1表示与()里的内容重复
+        for i in range(len(s) - 3):
+            if len(s.split(s[i:i + 3])) >= 3:
+                return 0
+        return 1
+
+    while 1:
+        try:
+            print('OK' if check(input()) else 'NG')
+        except:
+            break
+
+
+def fun_18():
+    """
+    简单密码
+    https://www.nowcoder.com/practice/7960b5038a2142a18e27e4c733855dac?tpId=37&tqId=21244&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+
+    现在有一种密码变换算法。
+    九键手机键盘上的数字与字母的对应： 1--1， abc--2, def--3, ghi--4, jkl--5, mno--6, pqrs--7, tuv--8 wxyz--9, 0--0，把密码中出现的小写字母都变成九键键盘对应的数字，如：a 变成 2，x 变成 9.
+    而密码中出现的大写字母则变成小写之后往后移一位，如：X ，先变成小写，再往后移一位，变成了 y ，例外：Z 往后移是 a 。
+    数字和其它的符号都不做变换。
+    """
+    a = input()
+    res = ""
+    d = {
+        "abc": 2,
+        "def": 3,
+        "ghi": 4,
+        "jkl": 5,
+        "mno": 6,
+        "pqrs": 7,
+        "tuv": 8,
+        "wxyz": 9,
+
+    }
+    for x in a:
+        if str(x).isupper():
+            if str(x).lower() == "z":
+                res += "a"
+            else:
+                res += chr(int(ord(str(x).lower())) + 1)
+        elif str(x).islower():
+            for y in d.keys():
+                if x in y:
+                    res += str(d.get(y))
+        else:
+            res += str(x)
+    print(res)
+
+
+def fun_19():
+    """
+    汽水瓶
+    https://www.nowcoder.com/practice/fe298c55694f4ed39e256170ff2c205f?tpId=37&tqId=21245&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+
+    某商店规定：三个空汽水瓶可以换一瓶汽水，允许向老板借空汽水瓶（但是必须要归还）。
+    小张手上有n个空汽水瓶，她想知道自己最多可以喝到多少瓶汽水。
+    数据范围：输入的正整数满足 1 \le n \le 100 \1≤n≤100
+    """
+    import sys
+    lines = [line.rstrip("\n") for line in sys.stdin.readlines()]
+    for line in lines:
+        k = int(line)
+        res = 0
+        while k > 2:
+            beer, reminder_k = divmod(k, 3)
+            res += beer
+            k = beer + reminder_k
+        if k == 2:
+            res += 1
+        print(res)
+
+
+def fun_20():
+    """
+    删除字符串中出现次数最少的字符
+    https://www.nowcoder.com/practice/05182d328eb848dda7fdd5e029a56da9?tpId=37&tqId=21246&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    实现删除字符串中出现次数最少的字符，若出现次数最少的字符有多个，则把出现次数最少的字符都删除。输出删除这些单词后的字符串，字符串中其它字符保持原来的顺序。
+    """
+    import sys
+    from collections import Counter
+
+    lines = [line.rstrip("\n") for line in sys.stdin.readlines()]
+    for line in lines:
+        c = Counter(line)
+        min_length = min(c.values())
+        for k, v in c.items():
+            if v == min_length:
+                line = line.replace(k, "")
+        print(line)
+
+
+def fun_21():
+    """
+    合唱队
+    https://www.nowcoder.com/practice/6d9d69e3898f45169a441632b325c7b4?tpId=37&tqId=21247&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    N 位同学站成一排，音乐老师要请最少的同学出列，使得剩下的 K 位同学排成合唱队形。
+    通俗来说，能找到一个同学，他的两边的同学身高都依次严格降低的队形就是合唱队形。
+    例子：
+    123 124 125 123 121 是一个合唱队形
+    123 123 124 122不是合唱队形，因为前两名同学身高相等，不符合要求
+    123 122 121 122不是合唱队形，因为找不到一个同学，他的两侧同学身高递减。
+    你的任务是，已知所有N位同学的身高，计算最少需要几位同学出列，可以使得剩下的同学排成合唱队形。
+    注意：不允许改变队列元素的先后顺序 且 不要求最高同学左右人数必须相等
+
+    """
+    import bisect  # 引入二分法
+    def hcteam(l):  # 定义一个函数，寻找最长的子序列
+        arr = [l[0]]  # 定义列表，将传入函数的列表第一个元素放入当前元素
+        dp = [1] * len(l)  # 定义一个列表，默认子序列有当前元素1，长度是传入函数的列表长度
+        for i in range(1, len(l)):  # 从第二个元素开始查找
+            if l[i] > arr[-1]:  # 如果元素大于arr列表的最后一个元素，就把它插入列表末尾
+                arr.append(l[i])
+                dp[i] = len(arr)  # 获取这个元素子序列的长度
+            else:  # 否则，利用二分法找到比元素大的元素的位置，用新的元素替代比它大的那个元素的值，这样就能制造出一个顺序排列的子序列
+                pos = bisect.bisect_left(arr, l[i])
+                arr[pos] = l[i]
+                dp[i] = pos + 1  # 获取这个元素子序列的长度
+        return dp
+
+    while True:
+        try:
+            n = int(input())
+            sg = list(map(int, input().split()))
+            left_t = hcteam(sg)  # 向左遍历查找子序列
+            right_t = hcteam(sg[::-1])[::-1]  # 向右遍历查找子序列
+            res = [left_t[i] + right_t[i] - 1 for i in range(len(sg))]  # 因为左右都包含原元素，所以需要减1 ；得到各元素能得到的子序列的最大长度
+            print(n - max(res))  # 源列表长度-可以生成的最长子序列长度  得到需要剔除的最小人数
+        except:
+            break
+
+    # 给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
+    def length_of_lst(nums):
+        if not nums:
+            return 0
+        dp = []
+        for i in range(len(nums)):
+            dp.append(1)
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    dp[i] = max(dp[i], dp[j] + 1)
+        return max(dp)
+
+
+def fun_22():
+    """
+    字符串排序
+    https://www.nowcoder.com/practice/5190a1db6f4f4ddb92fd9c365c944584?tpId=37&tqId=21249&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    编写一个程序，将输入字符串中的字符按如下规则排序。
+
+    规则 1 ：英文字母从 A 到 Z 排列，不区分大小写。
+    如，输入： Type 输出： epTy
+
+    规则 2 ：同一个英文字母的大小写同时存在时，按照输入顺序排列。
+    如，输入： BabA 输出： aABb
+
+    规则 3 ：非英文字母的其它字符保持原来的位置。
+    如，输入： By?e 输出： Be?y
+    """
+    while True:
+        try:
+            s = input()
+            a = ''
+            for i in s:
+                if i.isalpha():
+                    a += i
+            b = sorted(a, key=str.upper)
+            index = 0
+            d = ''
+            for i in range(len(s)):
+                if s[i].isalpha():
+                    d += b[index]
+                    index += 1
+                else:
+                    d += s[i]
+            print(d)
+        except:
+            break
+
+
+def fun_23():
+    """
+    素数伴侣
+    https://www.nowcoder.com/practice/b9eae162e02f4f928eac37d7699b352e?tpId=37&tqId=21251&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+
+    题目描述
+    若两个正整数的和为素数，则这两个正整数称之为“素数伴侣”，如2和5、6和13，它们能应用于通信加密。现在密码学会请你设计一个程序，从已有的 N （ N 为偶数）个正整数中挑选出若干对组成“素数伴侣”，挑选方案多种多样，例如有4个正整数：2，5，6，13，如果将5和6分为一组中只能得到一组“素数伴侣”，而将2和5、6和13编组将得到两组“素数伴侣”，能组成“素数伴侣”最多的方案称为“最佳方案”，当然密码学会希望你寻找出“最佳方案”。
+
+    输入:
+    有一个正偶数 n ，表示待挑选的自然数的个数。后面给出 n 个具体的数字。
+
+    输出:
+    输出一个整数 K ，表示你求得的“最佳方案”组成“素数伴侣”的对数。
+
+    解题思路： 1.判断一个数是否为素数：在这里需要注意的是全部数判断会超时，所以选择半位数来判断可以节省时间。选用原理：一个数能被另一个数除尽，则这个数也能被它的2倍数除尽，一个数不能被另一个数除尽则也不能被它的2倍数除尽。 2.判断最大匹配数： 这个是参考已有的答案来的，一个列表里的数与另一个列表里的每一个数判断，如果他们的和是素数就标记，若这个数还有另一个匹配的数，则看看之前匹配的数是否还有其他匹配的数，有则这个数就被当前数替代，没有则跳过。如此一来得到的数即为最大匹配数 3.数的分配与具体判断实现： 奇数和奇数相加与偶数和偶数相加得到的是偶数不可能是素数，只能是奇数和偶数相加才可能存在素数。因此将所有可匹配的数按奇数和偶数分为两个列表。然后让每一个奇数与所有偶数列表的数去匹配看相加的和是否为素数，如果是则加1。最终将计算的数打印出来
+
+    """
+
+    def get_primenum(s):
+        if s < 4:
+            return True
+        # 通过从2到它的平方根之间没有可除尽的数来判断这个数是否为素数。原理：一个数与另一个数能除尽则也能除尽这个数的2倍数。若直接判断从2到这个数之间的数则会耗费大量的时间来计算导致超时。
+        for i in range(2, int(s ** 0.5) + 1):
+            if s % i == 0:
+                return False
+        return True
+
+    def find_even(evens, previous_select, final_select, odd):
+        for i, even in enumerate(evens):
+            if get_primenum(even + odd) and previous_select[i] == 0:
+                previous_select[i] = 1
+                # 判断第i位偶数是否被匹配或者它的匹配奇数是否有其他选择，如果有其他选择，则当前的奇数匹配第i位偶数
+                if final_select[i] == 0 or find_even(evens, previous_select, final_select, final_select[i]):
+                    final_select[i] = odd
+                    return True
+        return False
+
+    while True:
+        try:
+            list0 = list(map(int, input().split(' ')))
+            count0 = 0
+            evens, odds = [], []
+            for list1 in list0:
+                if list1 % 2 == 0:
+                    evens.append(list1)
+                else:
+                    odds.append(list1)
+            final_select = [0] * len(evens)
+            for odd in odds:
+                previous_select = [0] * len(evens)
+                if find_even(evens, previous_select, final_select, odd):
+                    count0 += 1
+            print(count0)
+        except:
+            break
