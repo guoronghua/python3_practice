@@ -778,3 +778,1563 @@ def fun_25():
             break
 
 
+def fun_26():
+    """
+    蛇形矩阵
+    https://www.nowcoder.com/practice/649b210ef44446e3b1cd1be6fa4cab5e?tpId=37&tqId=21258&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    蛇形矩阵是由1开始的自然数依次排列成的一个矩阵上三角形。
+
+    例如，当输入5时，应该输出的三角形为：
+    1 3 6 10 15
+    2 5 9 14
+    4 8 13
+    7 12
+    11
+    """
+    while True:
+        try:
+            a = int(input())
+            count = 1
+            result = [[None] * a for x in range(a)]
+            for x in range(a):
+                for y in range(x + 1):
+                    temp = count
+                    if x == 0:
+                        result[x][y] = temp
+                    else:
+                        result[y][x - y] = temp
+                    count += 1
+            for y in range(a):
+                line_str = ""
+                for x in result:
+                    if x[y]:
+                        line_str = line_str + str(x[y]) + " "
+                line_str = line_str.rstrip(" ")
+                print(line_str)
+        except:
+            break
+
+
+def fun_27():
+    """
+    统计每个月兔子的总数
+    https://www.nowcoder.com/practice/1221ec77125d4370833fd3ad5ba72395?tpId=37&tqId=21260&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    有一种兔子，从出生后第3个月起每个月都生一只兔子，小兔子长到第三个月后每个月又生一只兔子。
+    例子：假设一只兔子第3个月出生，那么它第5个月开始会每个月生一只兔子。
+    假如兔子都不死，问第n个月的兔子总数为多少？
+    """
+
+    def count(a):
+        if a <= 2:
+            return 1
+        return count(a - 1) + count(a - 2)
+
+    while True:
+        try:
+            a = int(input())
+            arr = [1, 1]
+            while len(arr) < a:
+                arr.append(arr[-1] + arr[-2])
+            print(arr[-1])
+        except:
+            break
+
+
+def fun_28():
+    """
+    判断两个IP是否属于同一子网
+    https://www.nowcoder.com/practice/34a597ee15eb4fa2b956f4c595f03218?tpId=37&tqId=21262&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    IP地址是由4个0-255之间的整数构成的，用"."符号相连。
+    二进制的IP地址格式有32位，例如：10000011，01101011，00000011，00011000;每八位用十进制表示就是131.107.3.24
+    子网掩码是用来判断任意两台计算机的IP地址是否属于同一子网络的根据。
+    子网掩码与IP地址结构相同，是32位二进制数，由1和0组成，且1和0分别连续，其中网络号部分全为“1”和主机号部分全为“0”。
+    你可以简单的认为子网掩码是一串连续的1和一串连续的0拼接而成的32位二进制数，左边部分都是1，右边部分都是0。
+    利用子网掩码可以判断两台主机是否中同一子网中。
+    若两台主机的IP地址分别与它们的子网掩码进行逻辑“与”运算（按位与/AND）后的结果相同，则说明这两台主机在同一子网中。
+    """
+    while True:
+        try:
+            x = input().split('.')
+            y = input().split('.')
+            z = input().split('.')
+            m, n = [], []
+            for i in range(len(x)):
+                x[i] = int(x[i])
+                y[i] = int(y[i])
+                z[i] = int(z[i])
+            if x[0] != 255 or x[3] != 0 or max(x + y + z) > 255 or min(x + y + z) < 0:
+                print('1')
+            else:
+                for i in range(len(x)):
+                    m.append(int(x[i]) & int(y[i]))
+                    n.append(int(x[i]) & int(z[i]))
+                if m == n:
+                    print('0')
+                else:
+                    print('2')
+        except:
+            break
+
+
+def fun_29():
+    """
+    称砝码
+    https://www.nowcoder.com/practice/f9a4c19050fc477e9e27eb75f3bfd49c?tpId=37&tqId=21264&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    现有n种砝码，重量互不相等，分别为 m1,m2,m3…mn ；
+    每种砝码对应的数量为 x1,x2,x3...xn 。现在要用这些砝码去称物体的重量(放在同一侧)，问能称出多少种不同的重量。
+    注：
+    称重重量包括 0
+
+    对于每组测试数据：
+    第一行：n --- 砝码的种数(范围[1,10])
+    第二行：m1 m2 m3 ... mn --- 每种砝码的重量(范围[1,2000])
+    第三行：x1 x2 x3 .... xn --- 每种砝码对应的数量(范围[1,10])
+    利用给定的砝码可以称出的不同的重量数
+    """
+    while True:
+        try:
+            weight_type = input()
+            weights = list(map(int, input().rstrip("\n").split(" ")))
+            weigh_num = list(map(int, input().rstrip("\n").split(" ")))
+            groups = []
+            for x in range(len(weights)):
+                group = set()
+                for y in range(0, weigh_num[x] + 1):
+                    group.add(weights[x] * y)
+                groups.append(group)
+            res = {0}
+            for group in groups:
+                for item in res:
+                    test1 = set(w + item for w in group)
+                    res = res.union(test1)
+            print(len(res))
+
+        except:
+            break
+
+
+def fun_30():
+    """
+    学英语
+    https://www.nowcoder.com/practice/1364723563ab43c99f3d38b5abef83bc?tpId=37&tqId=21265&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    Jessi初学英语，为了快速读出一串数字，编写程序将数字转换成英文：
+
+    1.在英语读法中三位数字看成一整体，后面再加一个计数单位。从最右边往左数，三位一单位，例如12,345 等
+    2.每三位数后记得带上计数单位 分别是thousand, million, billion.
+    3.公式：百万以下千以上的数 X thousand X, 10亿以下百万以上的数：X million X thousand X, 10 亿以上的数：X billion X million X thousand X. 每个X分别代表三位数或两位数或一位数。
+    4.在英式英语中百位数和十位数之间要加and，美式英语中则会省略，我们这个题目采用加上and，百分位为零的话，这道题目我们省略and
+    下面再看几个数字例句：
+    22: twenty two
+    100:  one hundred
+    145:  one hundred and forty five
+    1,234:  one thousand two hundred and thirty four
+    8,088:  eight thousand (and) eighty eight (注:这个and可加可不加，这个题目我们选择不加)
+    486,669:  four hundred and eighty six thousand six hundred and sixty nine
+    1,652,510:  one million six hundred and fifty two thousand five hundred and ten
+    """
+    num10 = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    num20 = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen",
+             "nineteen"]
+    num100 = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+    while True:
+        try:
+            a = input()
+
+            def parse(num):
+                if not str(num).isdigit() or int(num) < 0:
+                    return "error"
+                num = int(num)
+                res = ""
+                billion = int(num / 1000000000)
+                if billion != 0:
+                    res += trans(billion) + " billion "
+                num %= 1000000000
+
+                million = int(num / 1000000)
+                if million != 0:
+                    res += trans(million) + " million "
+                num %= 1000000
+
+                thousand = int(num / 1000)
+                if thousand != 0:
+                    res += trans(thousand) + " thousand "
+                num %= 1000
+
+                if num != 0:
+                    res += trans(num)
+                return str(res).rstrip(" ")
+
+            def trans(num):
+                res = ""
+                h = int(num / 100)
+
+                if h != 0:
+                    res += num10[h] + " hundred"
+                num %= 100
+
+                k = int(num / 10)
+                if k != 0:
+                    if h != 0:
+                        res += " and "
+                    if k == 1:
+                        res += num20[num % 10]
+                    else:
+                        res += num100[k - 2] + " "
+                        if num % 10 != 0:
+                            res += num10[num % 10]
+                elif (num % 10) != 0:
+                    if h != 0:
+                        res += " and "
+                    res += num10[num % 10]
+                return str(res).rstrip(" ")
+
+            result = parse(a)
+            print(result)
+        except Exception as e:
+            break
+
+
+def fun_31():
+    """
+    迷宫问题
+    https://www.nowcoder.com/practice/cf24906056f4488c9ddb132f317e03bc?tpId=37&tqId=21266&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    定义一个二维数组 N*M ，如 5 × 5 数组下所示：
+
+    int maze[5][5] = {
+    0, 1, 0, 0, 0,
+    0, 1, 1, 1, 0,
+    0, 0, 0, 0, 0,
+    0, 1, 1, 1, 0,
+    0, 0, 0, 1, 0,
+    };
+
+    它表示一个迷宫，其中的1表示墙壁，0表示可以走的路，只能横着走或竖着走，不能斜着走，要求编程序找出从左上角到右下角的路线。入口点为[0,0],既第一格是可以走的路。
+    """
+
+    # 方法1
+    def find_way(x, y, path):
+        if x == m - 1 and y == n - 1:
+            [print('({%s},{%s})' % (l[0], l[1])) for l in path]
+        if x + 1 <= m - 1 and (x + 1, y) not in path and maze[x + 1][y] == '0':
+            find_way(x + 1, y, path + [(x + 1, y)])
+        if y + 1 <= n - 1 and (x, y + 1) not in path and maze[x][y + 1] == '0':
+            find_way(x, y + 1, path + [(x, y + 1)])
+        if x - 1 >= 0 and (x - 1, y) not in path and maze[x - 1][y] == '0':
+            find_way(x - 1, y, path + [(x - 1, y)])
+        if y - 1 >= 0 and (x, y - 1) not in path and maze[x][y - 1] == '0':
+            find_way(x, y - 1, path + [(x, y - 1)])
+
+    while 1:
+        try:
+            m, n = map(int, input().split())
+            maze = [input().split() for _ in range(m)]
+            find_way(0, 0, [(0, 0)])
+        except:
+            break
+
+    # 方法2
+    while True:
+        try:
+            m, n = map(int, input().split())
+            matrix = []
+            for i in range(m):
+                d = list(map(int, input().split()))
+                # print(c)
+                matrix.append(d)
+
+            def dfs(path):
+                if path[-1] == [m - 1, n - 1]:
+                    return path
+                r, c = path[-1]
+                matrix[r][c] = 2
+                directions = [[r + 1, c], [r, c + 1], [r - 1, c], [r, c - 1]]
+                for i, j in directions:
+                    if 0 <= i < m and 0 <= j < n and matrix[i][j] == 0:
+                        final_path = dfs(path + [[i, j]])
+                        if final_path[-1] == [m - 1, n - 1]:
+                            return final_path
+                return path  # 很重要，保证输出
+
+            path = dfs([[0, 0]])
+            for i in path:
+                print('({},{})'.format(i[0], i[1]))
+        except:
+            break
+
+
+def fun_32():
+    """
+    解数独
+    https://www.nowcoder.com/practice/78a1a4ebe8a34c93aac006c44f6bf8a1?tpId=37&tqId=21267&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    数独（Sudoku）是一款大众喜爱的数字逻辑游戏。玩家需要根据9X9盘面上的已知数字，推算出所有剩余空格的数字，并且满足每一行、每一列、每一个3X3粗线宫内的数字均含1-9，并且不重复。
+    """
+
+    def dfs(pos: int):
+        global valid
+        if pos == len(spaces):
+            valid = True
+            return
+
+        i, j = spaces[pos]
+        for digit in range(9):
+            if line[i][digit] == column[j][digit] == block[i // 3][j // 3][digit] == False:
+                line[i][digit] = column[j][digit] = block[i // 3][j // 3][digit] = True
+                board[i][j] = str(digit + 1)
+                dfs(pos + 1)
+                line[i][digit] = column[j][digit] = block[i // 3][j // 3][digit] = False
+            if valid:
+                return
+
+    while True:
+        try:
+            board = []
+            for i in range(9):
+                row = list(map(int, input().split()))
+                board.append(row)
+
+            line = [[False] * 9 for _ in range(9)]
+            column = [[False] * 9 for _ in range(9)]
+            block = [[[False] * 9 for _a in range(3)] for _b in range(3)]
+            valid = False
+            spaces = list()
+            for i in range(9):
+                for j in range(9):
+                    if board[i][j] == 0:
+                        spaces.append((i, j))
+                    else:
+                        digit = int(board[i][j]) - 1
+                        line[i][digit] = column[j][digit] = block[i // 3][j // 3][digit] = True
+            dfs(0)
+            for i in range(9):
+                board[i] = list(map(str, board[i]))
+                print(' '.join(board[i]))
+        except:
+            break
+
+
+def fun_33():
+    """
+    从单向链表中删除指定值的节点
+    https://www.nowcoder.com/practice/f96cd47e812842269058d483a11ced4f?tpId=37&tqId=21271&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入一个单向链表和一个节点的值，从单向链表中删除等于该值的节点，删除后如果链表中无节点则返回空指针。
+
+    链表的值不能重复。
+    构造过程，例如输入一行数据为:
+    6 2 1 2 3 2 5 1 4 5 7 2 2
+    则第一个参数6表示输入总共6个节点，第二个参数2表示头节点值为2，剩下的2个一组表示第2个节点值后面插入第1个节点值，为以下表示:
+    1 2 表示为
+    2->1
+    链表为2->1
+    3 2表示为
+    2->3
+    链表为2->3->1
+    5 1表示为
+    1->5
+    链表为2->3->1->5
+    4 5表示为
+    5->4
+    链表为2->3->1->5->4
+    7 2表示为
+    2->7
+    链表为2->7->3->1->5->4
+    最后的链表的顺序为 2 7 3 1 5 4
+    """
+
+    class Node(object):
+        def __init__(self, data):
+            self.data = data
+            self.next = None
+
+    class SingleLinkList(object):
+        def __init__(self, node=None):
+            self._head = node
+
+        def add(self, data):
+            node = Node(data)
+            node.next = self._head
+            self._head = node
+
+        def length(self):
+            cur = self._head
+            count = 0
+            while cur:
+                count += 1
+                cur = cur.next
+            return count
+
+        def travel(self):
+            cur = self._head
+            while cur:
+                print(cur.data, end=" ")
+                cur = cur.next
+            print("")
+
+        def insert(self, data, target_data):
+            node = Node(data)
+            if not self._head:
+                self._head = node
+            else:
+                cur = self._head
+                while cur:
+                    if cur.data == target_data:
+                        node.next = cur.next
+                        cur.next = node
+                        break
+                    else:
+                        cur = cur.next
+
+        def remove(self, target_data):
+            cur = self._head
+            pre = None
+            while cur:
+                if cur.data == target_data:
+                    if cur == self._head:
+                        self._head = cur.next
+                    else:
+                        pre.next = cur.next
+                    break
+                else:
+                    pre = cur
+                    cur = cur.next
+
+    while True:
+        try:
+            a = list(map(int, input().split()))
+            head_node = Node(a[1])
+            nodes = a[2:len(a) - 1]
+            to_del_data = a[-1]
+            single_link_list = SingleLinkList(head_node)
+            for i in range(0, len(nodes), 2):
+                data = nodes[i]
+                target_data = nodes[i + 1]
+                single_link_list.insert(data, target_data)
+
+            single_link_list.remove(to_del_data)
+            single_link_list.travel()
+        except:
+            break
+
+
+def fun_34():
+    """
+    四则运算
+    https://www.nowcoder.com/practice/9999764a61484d819056f807d2a91f1e?tpId=37&tqId=21273&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入一个表达式（用字符串表示），求这个表达式的值。
+    保证字符串中的有效字符包括[‘0’-‘9’],‘+’,‘-’, ‘*’,‘/’ ,‘(’， ‘)’,‘[’, ‘]’,‘{’ ,‘}’。且表达式一定合法。
+    输入：
+    3+2*{1+2*[-4/(8-6)+7]}
+    输出：
+    25
+    """
+    import re
+    def formula_format(formula):
+
+        """
+        步骤需要处理的是区分横杠‘-’是代表负数还是减号
+        """
+        formula = re.sub(' ', '', formula)
+
+        # 以 '横杠数字' 分割， -> \- 表示匹配横杠开头； \d+ 表示匹配数字1次或多次；\.?表示匹配小数点0次或1次;\d*表示匹配数字1次或多次。
+        formula_list = [i for i in re.split('(\-\d\.?\d*)', formula) if i]
+
+        final_formula = []
+        for item in formula_list:
+
+            # 第一个是以横杠开头的数字（包括小数）final_formula。即第一个是负数，横杠就不是减号
+            if len(final_formula) == 0 and re.search('^\-\d+\.?\d*$', item):
+                final_formula.append(item)
+                continue
+
+            if len(final_formula) > 0:
+
+                # 如果final_formal最后一个元素是运算符['+', '-', '*', '/', '('], 则横杠数字不是负数
+                if re.search('[\+\-\*\/\(]$', final_formula[-1]):
+                    final_formula.append(item)
+                    continue
+
+            # 剩下的按照运算符分割开
+            item_split = [i for i in re.split('([\+\-\*\/\(\)])', item) if i]
+            final_formula += item_split
+
+        return final_formula
+
+    def calculate(n1, n2, operator):
+
+        if operator == "+":
+            result = n1 + n2
+        elif operator == "-":
+            result = n1 - n2
+        elif operator == "*":
+            result = n1 * n2
+        elif operator == "/":
+            result = n1 / n2
+        else:
+            raise Exception("operator is not support now...")
+        return result
+
+    def is_operator(e):
+        operators = ["+", "-", "*", "/", "(", ")"]
+        return True if e in operators else False
+
+    def decision(tail_op, now_op):
+        """
+        :param tail_op: 运算符栈最后一个运算符
+        :param now_op: 算式列表取出当前运算符
+        :return: 1 弹栈， 0 弹出运算符栈最后一个元素， -1 入栈
+        """
+        # 运算符等级
+        rate1 = ["+", "-"]
+        rate2 = ["*", "/"]
+        rate3 = ["("]
+        rate4 = [")"]
+
+        if tail_op in rate1:
+            if now_op in rate2 or now_op in rate3:
+                # 运算符优先级不同
+                return -1  # 把当前取出的运算符压栈 "1+2+3"
+            else:
+                return 1  # 否则运算符栈中最后的 运算符弹出，进行计算
+
+        elif tail_op in rate2:
+            if now_op in rate3:
+                return -1
+            else:
+                return 1
+
+        elif tail_op in rate3:
+            if now_op in rate4:
+                return 0  # ( 遇上 ) 需要弹出 (，丢掉 )
+            else:
+                return -1  # 只要栈顶元素为(，当前元素不是)都应入栈
+        else:
+            return -1
+
+    def final_cal(formula_list):
+        num_stack = []
+        op_stack = []
+        for e in formula_list:
+            operator = is_operator(e)
+            if not operator:
+                a = 2
+                num_stack.append(float(e))
+            else:
+                while True:
+                    a = 1
+                    if len(op_stack) == 0:  # 第一个运算符来了，都得入栈
+                        op_stack.append(e)
+                        break
+                    # 后面运算符来了，需要判断入栈，or 出栈。
+                    pop_oper = op_stack[-1]
+                    tag = decision(op_stack[-1], e)
+                    if tag == -1:  # 压栈
+                        op_stack.append(e)
+                        break
+                    elif tag == 0:  # 弹出运算符栈内最后一个 "("， 丢掉当前的 ")", 进入下次循环
+                        op_stack.pop()
+                        break
+                    elif tag == 1:  # 运算符栈弹出最后一个运算符，数字栈弹出最后两个元素，进行计算
+                        op = op_stack.pop()
+                        num2 = num_stack.pop()
+                        num1 = num_stack.pop()
+
+                        # 计算后结果 --> 压入数字栈
+                        num_stack.append(calculate(num1, num2, op))
+
+        # 处理大循环结束后 数字栈和运算符栈中可能还有元素 的情况
+        while len(op_stack) != 0:
+            op = op_stack.pop()
+            num2 = num_stack.pop()
+            num1 = num_stack.pop()
+            num_stack.append(calculate(num1, num2, op))
+        print(int(num_stack.pop()))
+
+    while True:
+        try:
+            a = formula_format(input())
+            final_cal(a)
+        except:
+            break
+
+
+def fun_35():
+    """
+    输出单向链表中倒数第k个结点
+    https://www.nowcoder.com/practice/54404a78aec1435a81150f15f899417d?tpId=37&tqId=21274&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入一个单向链表，输出该链表中倒数第k个结点，链表的倒数第1个结点为链表的尾指针。
+    """
+
+    class Node(object):
+        def __init__(self, data):
+            self.data = data
+            self.next = None
+
+    class SingleLinkedList(object):
+        def __init__(self):
+            self._head = None
+            self.count = 0
+
+        def add(self, node):
+            if not self._head:
+                self._head = node
+            else:
+                node.next = self._head
+                self._head = node
+            self.count += 1
+
+        def get_node_by_index(self, index):
+            if index > self.count or index == 0:
+                print(0)
+            else:
+                i = 1
+                cur = self._head
+                while i < index:
+                    cur = cur.next
+                    i += 1
+                print(cur.data)
+
+    while True:
+        try:
+            node_num = int(input())
+            node_valus = [int(x) for x in input().split()]
+            target_index = int(input())
+            linked_list = SingleLinkedList()
+            for x in node_valus:
+                node = Node(x)
+                linked_list.add(node)
+            linked_list.get_node_by_index(target_index)
+        except:
+            break
+
+
+def fun_36():
+    """
+    计算字符串的编辑距离
+    https://www.nowcoder.com/practice/3959837097c7413a961a135d7104c314?tpId=37&tqId=21275&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    Levenshtein 距离，又称编辑距离，指的是两个字符串之间，由一个转换成另一个所需的最少编辑操作次数。许可的编辑操作包括将一个字符替换成另一个字符，插入一个字符，删除一个字符。编辑距离的算法是首先由俄国科学家 Levenshtein 提出的，故又叫 Levenshtein Distance 。
+
+    例如：
+    字符串A: abcdefg
+    字符串B: abcdef
+
+    通过增加或是删掉字符 ”g” 的方式达到目的。这两种方案都需要一次操作。把这个操作所需要的次数定义为两个字符串的距离。
+    要求：
+    给定任意两个字符串，写出一个算法计算它们的编辑距离。
+    """
+
+    def lcs(a_str, b_str):
+        n = len(a_str)
+        m = len(b_str)
+        edit = [[i + j for j in range(len(b_str) + 1)] for i in range(len(a_str) + 1)]
+        for x in range(1, n + 1):
+            for y in range(1, m + 1):
+                if a_str[x - 1] == b_str[y - 1]:
+                    d = 0
+                else:
+                    d = 1
+                edit[x][y] = min(edit[x - 1][y] + 1, edit[x][y - 1] + 1, edit[x - 1][y - 1] + d)
+        return edit[len(a_str)][len(b_str)]
+
+    while True:
+        try:
+            a = input()
+            b = input()
+            print(lcs(a, b))
+        except:
+            break
+
+
+def fun_37():
+    """
+    表达式求值
+    https://www.nowcoder.com/practice/9566499a2e1546c0a257e885dfdbf30d?tpId=37&tqId=21277&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    给定一个字符串描述的算术表达式，计算出结果值。
+    输入字符串长度不超过 100 ，合法的字符包括 ”+, -, *, /, (, )” ， ”0-9” 。
+    """
+    import re
+    chars = input()
+    chars = re.sub(r"([-+*/()])", r" \1 ", chars)
+    tmp = chars.split()
+    tokens = []
+    # 处理负数
+    f = False
+    for i, x in enumerate(tmp):
+        if f == True:
+            f = False
+            continue
+        if x == '-' and (i == 0 or tmp[i - 1] == '('):
+            tokens.append(''.join(tmp[i:i + 2]))
+            f = True
+        else:
+            tokens.append(x)
+
+    ops = []
+    vals = []
+
+    precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '(': 0}
+
+    def applyOp(v1, v2, op):
+        if op == '+': return v1 + v2
+        if op == '-': return v1 - v2
+        if op == '*': return v1 * v2
+        if op == '/': return v1 // v2
+
+    for t in tokens:
+        if t != '-' and t[0] == '-' or t.isdigit():
+            vals.append(int(t))
+        elif t == '(':
+            ops.append(t)
+        elif t == ')':
+            while len(ops) > 0 and ops[-1] != '(':
+                v2 = vals.pop()
+                v1 = vals.pop()
+                op = ops.pop()
+                val = applyOp(v1, v2, op)
+                vals.append(val)
+            ops.pop()
+        else:
+            while len(ops) > 0 and precedence[ops[-1]] >= precedence[t]:
+                v2 = vals.pop()
+                v1 = vals.pop()
+                op = ops.pop()
+                val = applyOp(v1, v2, op)
+                vals.append(val)
+            ops.append(t)
+
+    while len(ops) > 0:
+        v2 = vals.pop()
+        v1 = vals.pop()
+        op = ops.pop()
+        val = applyOp(v1, v2, op)
+        vals.append(val)
+
+    print(vals[-1])
+
+
+def fun_38():
+    """
+    完全数计算
+    https://www.nowcoder.com/practice/7299c12e6abb437c87ad3e712383ff84?tpId=37&tqId=21279&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    完全数（Perfect number），又称完美数或完备数，是一些特殊的自然数。
+    它所有的真因子（即除了自身以外的约数）的和（即因子函数），恰好等于它本身。
+    例如：28，它有约数1、2、4、7、14、28，除去它本身28外，其余5个数相加，1+2+4+7+14=28。
+    """
+
+    def is_perfect_num(n):
+        res = list()
+        for x in range(1, int(n / 2) + 1):
+            w, y = divmod(n, x)
+            if y == 0:
+                if x != n:
+                    res.append(x)
+                if w != n:
+                    res.append(w)
+
+        if sum(set(res)) == n:
+            return 1
+        else:
+            return -1
+
+    while True:
+        try:
+            count = 0
+            for x in range(1, int(input())):
+                res = is_perfect_num(x)
+                if res != -1:
+                    count += 1
+            print(count)
+
+        except:
+            break
+
+
+def fun_39():
+    """
+    高精度整数加法
+    https://www.nowcoder.com/practice/49e772ab08994a96980f9618892e55b6?tpId=37&tqId=21280&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入两个用字符串 str 表示的整数，求它们所表示的数之和。
+    """
+
+    while True:
+        try:
+            s1 = list(map(int, input()))[::-1]
+            s2 = list(map(int, input()))[::-1]
+            res = ""
+            i = 0  # 遍历指针
+            addd = 0  # 进位
+            while i < max(len(s1), len(s2)):  # 开始遍历
+                a = 0 if i >= len(s1) else s1[i]  # 获取s1中的一位数字
+                b = 0 if i >= len(s2) else s2[i]  # 获取s2中的一位数字
+                summ = (addd + a + b) % 10  # 计算和
+                addd = (addd + a + b) // 10  # 计算进位
+                res = str(summ) + res  # 组织到输出字符串中
+                i += 1
+            if addd > 0:  # 处理最后一位
+                res = "1" + res
+            print(res)  # 输出
+        except:
+            break
+
+
+def fun_40():
+    """
+    查找组成一个偶数最接近的两个素数
+    https://www.nowcoder.com/practice/f8538f9ae3f1484fb137789dec6eedb9?tpId=37&tqId=21283&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    任意一个偶数（大于2）都可以由2个素数组成，组成偶数的2个素数有很多种情况，本题目要求输出组成指定偶数的两个素数差值最小的素数对。
+    """
+    import math
+
+    def isPrime(n):
+        for i in range(2, int(math.sqrt(n)) + 1):
+            if n % i == 0:
+                return False
+        return True
+
+    while True:
+        try:
+            a = int(input())
+            b = a // 2
+            for i in range(b, 0, -1):
+                if isPrime(i) and isPrime(a - i):
+                    print(i)
+                    print(a - i)
+                    break
+        except:
+            break
+
+
+def fun_41():
+    """
+    放苹果
+    https://www.nowcoder.com/practice/bfd8234bb5e84be0b493656e390bdebf?tpId=37&tqId=21284&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    把m个同样的苹果放在n个同样的盘子里，允许有的盘子空着不放，问共有多少种不同的分法？
+    注意：如果有7个苹果和3个盘子，（5，1，1）和（1，5，1）被视为是同一种分法。
+    """
+    '''
+    放苹果分为两种情况，一种是有盘子为空，一种是每个盘子上都有苹果。
+    令(m,n)表示将m个苹果放入n个盘子中的摆放方法总数。
+    1.假设有一个盘子为空，则(m,n)问题转化为将m个苹果放在n-1个盘子上，即求得(m,n-1)即可
+    2.假设所有盘子都装有苹果，则每个盘子上至少有一个苹果，即最多剩下m-n个苹果，问题转化为将m-n个苹果放到n个盘子上
+    即求(m-n，n)
+    '''
+
+    def put_apple(m, n):
+        if m == 0 or n == 1:
+            return 1
+        if n > m:
+            return put_apple(m, m)
+        else:
+            return put_apple(m, n - 1) + put_apple(m - n, n)
+
+    while True:
+        try:
+            n, m = map(int, input().split())
+            print(put_apple(n, m))
+        except:
+            break
+
+
+def fun_42():
+    """
+     MP3光标位置
+     https://www.nowcoder.com/practice/eaf5b886bd6645dd9cfb5406f3753e15?tpId=37&tqId=21287&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+     MP3 Player因为屏幕较小，显示歌曲列表的时候每屏只能显示几首歌曲，用户要通过上下键才能浏览所有的歌曲。为了简化处理，假设每屏只能显示4首歌曲，光标初始的位置为第1首歌。
+    现在要实现通过上下键控制光标移动来浏览歌曲列表，控制逻辑如下：
+    歌曲总数<=4的时候，不需要翻页，只是挪动光标位置。
+    光标在第一首歌曲上时，按Up键光标挪到最后一首歌曲；光标在最后一首歌曲时，按Down键光标挪到第一首歌曲。
+    其他情况下用户按Up键，光标挪到上一首歌曲；用户按Down键，光标挪到下一首歌曲。
+    2. 歌曲总数大于4的时候（以一共有10首歌为例）：
+    特殊翻页：屏幕显示的是第一页（即显示第1 – 4首）时，光标在第一首歌曲上，用户按Up键后，屏幕要显示最后一页（即显示第7-10首歌），同时光标放到最后一首歌上。同样的，屏幕显示最后一页时，光标在最后一首歌曲上，用户按Down键，屏幕要显示第一页，光标挪到第一首歌上。
+    一般翻页：屏幕显示的不是第一页时，光标在当前屏幕显示的第一首歌曲时，用户按Up键后，屏幕从当前歌曲的上一首开始显示，光标也挪到上一首歌曲。光标当前屏幕的最后一首歌时的Down键处理也类似。
+
+    """
+
+    def helper(cur, n, order):  # order为操作'UUUU'
+        max_ = 1
+        for s in order:
+            # 首先是歌曲总数<=4的时候
+            if s == 'U' and cur == 1:
+                cur = n  # 光标在第一首歌曲上时，按Up键光标挪到最后一首歌曲
+            elif s == 'U':
+                cur -= 1  # 如果cur不是第一首，向上挪一首
+            elif s == 'D' and cur == n:
+                cur = 1  # 光标在最后一首歌曲时，按Down键光标挪到第一首歌曲
+            elif s == 'D':
+                cur += 1  # 如果cur不是最后一首，向下挪一首
+
+            # 歌曲总数大于4的时候
+            if n > 4:
+                if cur > max_:
+                    max_ = cur
+                if cur < max_ - 3:
+                    max_ = cur + 3
+        return cur, max_
+
+    while True:
+        try:
+            n, order, cur = int(input()), input(), 1  # cur为当前光标所在
+            cur, max_ = helper(cur, n, order)
+            ans = range(max_ - 3, max_ + 1) if n > 4 else range(1, n + 1)
+            print(" ".join(map(str, ans)))
+            print(cur)
+        except:
+            break
+
+
+def fun_43():
+    """
+    查找两个字符串a,b中的最长公共子串
+    https://www.nowcoder.com/practice/181a1a71c7574266ad07f9739f791506?tpId=37&tqId=21288&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    查找两个字符串a,b中的最长公共子串。若有多个，输出在较短串中最先出现的那个。
+    注：子串的定义：将一个字符串删去前缀和后缀（也可以不删）形成的字符串。请和“子序列”的概念分开！
+    """
+    # 方法一
+    while True:
+        try:
+            str1, str2 = input(), input()
+            if len(str1) > len(str2):
+                str1, str2 = str2, str1
+            c = 0
+            d = ''
+            for i in range(len(str1)):
+                if str1[i - c:i + 1] in str2:
+                    d = str1[i - c:i + 1]
+                    c += 1
+            print(d)
+        except:
+            break
+
+    # 方法二动态规划
+    while True:
+        try:
+            s1 = input()
+            s2 = input()
+            if len(s1) > len(s2):
+                s1, s2 = s2, s1
+            m, n = len(s1), len(s2)
+            dp = [[0] * (n + 1) for _ in range(m + 1)]
+            index, max_len = 0, 0
+            for i in range(1, m + 1):
+                for j in range(1, n + 1):
+                    if s1[i - 1] == s2[j - 1]:
+                        dp[i][j] = dp[i - 1][j - 1] + 1
+                        if dp[i][j] > max_len:
+                            max_len = dp[i][j]
+                            index = i
+                    else:
+                        dp[i][j] = 0
+            print(s1[index - max_len:index])
+        except:
+            break
+
+
+def fun_44():
+    """
+    24点游戏算法
+    https://www.nowcoder.com/practice/fbc417f314f745b1978fc751a54ac8cb?tpId=37&tqId=21290&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    给出4个1-10的数字，通过加减乘除运算，得到数字为24就算胜利,除法指实数除法运算,运算符仅允许出现在两个数字之间,本题对数字选取顺序无要求，但每个数字仅允许使用一次，且需考虑括号运算
+    此题允许数字重复，如3 3 4 4为合法输入，此输入一共有两个3，但是每个数字只允许使用一次，则运算过程中两个3都被选取并进行对应的计算操作。
+    """
+
+    def helper(arr, item):  # 先写一个利用递归+枚举解决算24的程序
+        if item < 1:
+            return False
+        if len(arr) == 1:  # 递归终点，当数组arr只剩一个数的时候，判断是否等于item
+            return arr[0] == item
+        else:  # 如果arr不是只剩一个数，就调用函数本身（直到只剩一个为止返回真假）
+            for i in range(len(arr)):
+                m = arr[0:i] + arr[i + 1:]
+                n = arr[i]
+                if helper(m, item + n) or helper(m, item - n) or helper(m, item * n) or helper(m, item / n):
+                    return True
+            return False
+
+    while True:
+        try:
+            if helper(list(map(int, input().split())), 24):
+                print('true')
+            else:
+                print('false')
+        except:
+            break
+
+
+def fun_45():
+    """
+    矩阵乘法
+    https://www.nowcoder.com/practice/ebe941260f8c4210aa8c17e99cbc663b?tpId=37&tqId=21292&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    如果A是个x行y列的矩阵，B是个y行z列的矩阵，把A和B相乘，其结果将是另一个x行z列的矩阵C。这个矩阵的每个元素是由下面的公式决定的
+    第一行包含一个正整数x，代表第一个矩阵的行数
+    第二行包含一个正整数y，代表第一个矩阵的列数和第二个矩阵的行数
+    第三行包含一个正整数z，代表第二个矩阵的列数
+    之后x行，每行y个整数，代表第一个矩阵的值
+    之后y行，每行z个整数，代表第二个矩阵的值
+    """
+    while True:
+        try:
+            x = int(input())
+            y = int(input())
+            z = int(input())
+            A = []
+            B = []
+            for i in range(x):
+                temp = input().split()
+                temp = list(map(int, temp))
+                A.append(temp)
+            for j in range(y):
+                temp = input().split()
+                temp = list(map(int, temp))
+                B.append(temp)
+
+            res = []
+            for a in range(x):
+                ttt = []
+                for b in range(z):
+                    temp = 0
+                    for c in range(y):
+                        temp += A[a][c] * B[c][b]
+                    ttt.append(temp)
+                res.append(ttt)
+            for x in res:
+                out = " ".join(list(map(str, x)))
+                print(out)
+
+        except Exception as e:
+            break
+
+
+def fun_46():
+    """
+    矩阵乘法计算量估算
+    https://www.nowcoder.com/practice/15e41630514445719a942e004edc0a5b?tpId=37&tqId=21293&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    例如：
+
+    A是一个50×10的矩阵，B是10×20的矩阵，C是20×5的矩阵
+    计算A*B*C有两种顺序：((AB)C)或者(A(BC))，前者需要计算15000次乘法，后者只需要3500次。
+    编写程序计算不同的计算顺序需要进行的乘法次数。
+    """
+    # 计算式的题目，考出入栈处理括号
+    # 先摘抄优秀答案：
+    # 按照出入栈处理括号的思路，自己重写如下代码。
+    while True:
+        try:
+            n = int(input())
+            mdict = {}
+            for i in range(n):
+                mdict[chr(ord('A') + i)] = list(
+                    map(int, input().strip().split()))  ## 用strip()先去掉可能隐藏的末尾空格。再split(),防止map不过去
+            s = input()
+            result = 0
+            temp = []
+            for i in s:
+                if i != ')':  # 不遇到')'就一直压栈
+                    temp.append(i)
+                else:  # 直接遇到')',把前两个弹出来计算乘法运算量
+                    C = temp.pop()
+                    B = temp.pop()
+                    temp.pop()  # 弹掉前括号'('
+                    result += mdict[B][0] * mdict[B][1] * mdict[C][1]
+                    mdict[B] = [mdict[B][0], mdict[C][1]]  # 把当前乘积的结果存储起来
+                    temp.append(B)  # 把当前乘积结果入栈
+            # 因为有最外圈括号，弹完所有')'即完成整个算式的结果
+            print(result)
+        except:
+            break
+
+
+def fun_47():
+    """
+    字符串通配符
+    https://www.nowcoder.com/practice/43072d50a6eb44d2a6c816a283b02036?tpId=37&tqId=21294&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    问题描述：在计算机中，通配符一种特殊语法，广泛应用于文件搜索、数据库、正则表达式等领域。现要求各位实现字符串通配符的算法。
+    要求：
+    实现如下2个通配符：
+    *：匹配0个或以上的字符（注：能被*和?匹配的字符仅由英文字母和数字0到9组成，下同）
+    ？：匹配1个字符
+    注意：匹配时不区分大小写。
+    """
+    import re
+    while True:
+        try:
+            a = input()
+            b = input()
+            a = a.lower()
+            b = b.lower()
+            a = a.replace('?', '\w{1}').replace('.', '\.').replace('*', '\w*')  # \w{1}代表匹配一个0-9且小写字母 \w*代表匹配多个0-9或小写字母
+            c = re.findall(a, b)  # c中为b中与a匹配的字符串
+            if (b in c):
+                print('true')
+            else:
+                print('false')
+        except:
+            break
+
+
+def fun_48():
+    """
+    百钱买百鸡问题
+    https://www.nowcoder.com/practice/74c493f094304ea2bda37d0dc40dc85b?tpId=37&tqId=21295&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    公元五世纪，我国古代数学家张丘建在《算经》一书中提出了“百鸡问题”：鸡翁一值钱五，鸡母一值钱三，鸡雏三值钱一。百钱买百鸡，问鸡翁、鸡母、鸡雏各几何？
+    现要求你打印出所有花一百元买一百只鸡的方式。
+    """
+    while True:
+        try:
+            for i in range(20):
+                for s in range(33):
+                    if 5 * i + 3 * s + 1 / 3 * (100 - i - s) == 100:
+                        print(i, s, 100 - i - s)
+        except:
+            break
+
+
+def fun_49():
+    """
+    计算日期到天数转换
+    https://www.nowcoder.com/practice/769d45d455fe40b385ba32f97e7bcded?tpId=37&tqId=21296&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    根据输入的日期，计算是这一年的第几天。
+    保证年份为4位数且日期合法。
+    进阶：时间复杂度：O(n)\O(n) ，空间复杂度：O(1)\O(1)
+    """
+    import datetime
+    while True:
+        try:
+            year, month, day = input().split()
+            input_date = datetime.date(int(year), int(month), int(day))
+            today_date = datetime.date(int(year), 1, 1)
+            days = (input_date - today_date).days
+            print(days + 1)
+        except:
+            break
+
+
+def fun_50():
+    """
+    公共子串计算
+    https://www.nowcoder.com/practice/98dc82c094e043ccb7e0570e5342dd1b?tpId=37&tqId=21298&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    给定两个只包含小写字母的字符串，计算两个字符串的最大公共子串的长度。
+    """
+    while True:
+        try:
+            a = input().upper()
+            b = input().upper()
+            n = 0
+            for i in range(len(a)):
+                if a[i - n:i + 1] in b:
+                    n += 1
+            print(n)
+        except:
+            break
+
+
+def fun_51():
+    """
+    尼科彻斯定理
+    https://www.nowcoder.com/practice/dbace3a5b3c4480e86ee3277f3fe1e85?tpId=37&tqId=21299&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    验证尼科彻斯定理，即：任何一个整数m的立方都可以写成m个连续奇数之和。
+    6**3 = 31+33+35+37+39+41
+    """
+    while True:
+        try:
+            num = int(input())
+            while True:
+                res = []
+                for x in range(num * num - num + 1, num * num + num, 2):
+                    res.append(x)
+                if sum(res) == num ** 3:
+                    res = list(map(str, res))
+                    print("+".join(res))
+                    break
+        except:
+            break
+
+
+def fun_52():
+    """
+    火车进站
+    https://www.nowcoder.com/practice/97ba57c35e9f4749826dc3befaeae109?tpId=37&tqId=21300&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    给定一个正整数N代表火车数量，0<N<10，接下来输入火车入站的序列，一共N辆火车，每辆火车以数字1-9编号，火车站只有一个方向进出，同时停靠在火车站的列车中，只有后进站的出站了，先进站的才能出站。
+    要求输出所有火车出站的方案，以字典序排序输出
+    """
+    while True:
+        try:
+            n = int(input())
+            trains = input().strip().split(' ')
+
+            res = []
+
+            def rec_trains(cur_idx, in_trains, out_trains):
+                if trains[-1] in in_trains:
+                    res.append(' '.join(out_trains + in_trains[::-1]))  # 最后一辆火车已经进站，直接输出
+                    return
+                elif not in_trains:
+                    rec_trains(cur_idx + 1, in_trains + [trains[cur_idx]], out_trains)  # 还有没有已经进站的火车，只能进站
+                else:
+                    rec_trains(cur_idx, in_trains[:-1], out_trains + [in_trains[-1]])  # 当前的火车出站
+                    rec_trains(cur_idx + 1, in_trains + [trains[cur_idx]], out_trains)  # 当前的火车进站
+
+            rec_trains(0, [], [])
+            res.sort()
+            print('\n'.join(res))
+        except:
+            break
+
+
+def fun_53():
+    """
+    将真分数分解为埃及分数
+    https://www.nowcoder.com/practice/e0480b2c6aa24bfba0935ffcca3ccb7b?tpId=37&tqId=21305&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    分子为1的分数称为埃及分数。现输入一个真分数(分子比分母小的分数，叫做真分数)，请将该分数分解为埃及分数。如：8/11 = 1/2+1/5+1/55+1/110。
+注：真分数指分子小于分母的分数，分子和分母有可能gcd不为1！
+    :return:
+    """
+    while True:
+        try:
+            a, b = map(int, input().split('/'))
+            a *= 10
+            b *= 10
+            res = []
+            while a:
+                for i in range(a, 0, -1):
+                    if b % i == 0:
+                        res.append('1' + '/' + str(int(b / i)))
+                        a = a - i
+                        break
+            print('+'.join(res))
+        except:
+            break
+
+
+def fun_54():
+    """
+    最长回文子串
+    https://www.nowcoder.com/practice/12e081cd10ee4794a2bd70c7d68f5507?tpId=37&tqId=21308&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    给定一个仅包含小写字母的字符串，求它的最长回文子串的长度。
+    :return:
+    """
+    while True:
+        try:
+            a = input()
+            max_size = 1
+            for i in range(0, len(a)):
+                for j in range(i + 1, len(a) + 1):
+                    if a[i:j] == a[i:j][::-1]:
+                        if len(a[i:j]) > max_size:
+                            max_size = len(a[i:j])
+            print(max_size)
+        except Exception as e:
+            break
+
+
+def fun_55():
+    """
+    求最大连续bit数
+    https://www.nowcoder.com/practice/4b1658fd8ffb4217bc3b7e85a38cfaf2?tpId=37&tqId=21309&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    求一个int类型数字对应的二进制数字中1的最大连续数，例如3的二进制为00000011，最大连续2个1
+    :return:
+    """
+    while True:
+        try:
+            x = int(input())
+            byte_x = bin(x)[2:]
+            list1 = sorted(list(set(byte_x.split('0'))), key=lambda x: len(x), reverse=True)
+            print(len(list1[0]))
+        except:
+            break
+
+
+def fun_56():
+    """
+    扑克牌大小
+    https://www.nowcoder.com/practice/d290db02bacc4c40965ac31d16b1c3eb?tpId=37&tqId=21311&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    扑克牌游戏大家应该都比较熟悉了，一副牌由54张组成，含3~A、2各4张，小王1张，大王1张。牌面从小到大用如下字符和字符串表示（其中，小写joker表示小王，大写JOKER表示大王）：
+    3 4 5 6 7 8 9 10 J Q K A 2 joker JOKER
+    输入两手牌，两手牌之间用"-"连接，每手牌的每张牌以空格分隔，"-"两边没有空格，如：4 4 4 4-joker JOKER。
+    请比较两手牌大小，输出较大的牌，如果不存在比较关系则输出ERROR。
+    基本规则：
+    （1）输入每手牌可能是个子、对子、顺子（连续5张）、三个、炸弹（四个）和对王中的一种，不存在其他情况，由输入保证两手牌都是合法的，顺子已经从小到大排列；
+    （2）除了炸弹和对王可以和所有牌比较之外，其他类型的牌只能跟相同类型的存在比较关系（如，对子跟对子比较，三个跟三个比较），不考虑拆牌情况（如：将对子拆分成个子）；
+    （3）大小规则跟大家平时了解的常见规则相同，个子、对子、三个比较牌面大小；顺子比较最小牌大小；炸弹大于前面所有的牌，炸弹之间比较牌面大小；对王是最大的牌；
+
+    （4）输入的两手牌不会出现相等的情况。
+    """
+    while True:
+        try:
+            D = {'3': 0, '4': 1, '5': 2, '6': 3, '7': 4, '8': 5, '9': 6, '10': 7, 'J': 8, 'Q': 9, 'K': 10, 'A': 11,
+                 '2': 12, 'joker': 13, 'JOKER': 14}
+            a, b = input().split('-')
+            s1, s2 = a.split(), b.split()
+            if a == 'joker JOKER' or b == 'joker JOKER':
+                print('joker JOKER')
+            elif len(s1) == len(s2):
+                print(a if D[s1[0]] > D[s2[0]] else b)
+            elif len(s1) == 4:
+                print(a)
+            elif len(s2) == 4:
+                print(b)
+            else:
+                print('ERROR')
+        except:
+            break
+
+
+def fun_57():
+    """
+     24点运算
+     https://www.nowcoder.com/practice/7e124483271e4c979a82eb2956544f9d?tpId=37&tqId=21312&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+     计算24点是一种扑克牌益智游戏，随机抽出4张扑克牌，通过加(+)，减(-)，乘(*), 除(/)四种运算法则计算得到整数24，本问题中，扑克牌通过如下字符或者字符串表示，其中，小写joker表示小王，大写JOKER表示大王：
+
+    3 4 5 6 7 8 9 10 J Q K A 2 joker JOKER
+
+    本程序要求实现：输入4张牌，输出一个算式，算式的结果为24点。
+
+    详细说明：
+
+    1.运算只考虑加减乘除运算，没有阶乘等特殊运算符号，没有括号，友情提醒，整数除法要当心，是属于整除，比如2/3=0，3/2=1；
+    2.牌面2~10对应的权值为2~10, J、Q、K、A权值分别为为11、12、13、1；
+    3.输入4张牌为字符串形式，以一个空格隔开，首尾无空格；如果输入的4张牌中包含大小王，则输出字符串“ERROR”，表示无法运算；
+    4.输出的算式格式为4张牌通过+-*/四个运算符相连，中间无空格，4张牌出现顺序任意，只要结果正确；
+    5.输出算式的运算顺序从左至右，不包含括号，如1+2+3*4的结果为24，2 A 9 A不能变为(2+1)*(9-1)=24
+    6.如果存在多种算式都能计算得出24，只需输出一种即可，如果无法得出24，则输出“NONE”表示无解。
+    7.因为都是扑克牌，不存在单个牌为0的情况，且没有括号运算，除数(即分母)的数字不可能为0
+    product('ABCD', repeat=2) = AA AB AC AD BA BB BC BD CA CB CC CD DA DB DC DD  返回元组，笛卡尔积，相当于嵌套的for循环
+    permutations('ABCD', 2) = AB AC AD BA BC BD CA CB CD DA DB DC   长度r元组，所有可能的排列，无重复元素
+    combinations('ABCD', 2) = AB AC AD BC BD CD    长度r元组，有序，无重复元素
+    combinations_with_replacement('ABCD', 2)  AA AB AC AD BB BC BD CC CD DD 长度r元组，有序，元素可重复
+    """
+
+    import itertools
+    while True:
+        try:
+            flag = 0
+            D = {"J": "11", "Q": "12", "K": "13", "A": "1"}
+            operators = {'0': '+', '1': '-', '2': '*', '3': '/'}
+
+            input_cards = input().split()
+            new_cards = [D.get(i, i) for i in input_cards]
+            operator_cases = itertools.product(map(str, range(4)), repeat=3)  # 笛卡尔积，相当于嵌套的for循环
+
+            for o in operator_cases:
+                for i in itertools.permutations(range(4), 4):  # 长度r元组，所有可能的排列，无重复元素, combinations() 方式类似 长度r元组，有序，无重复元素
+                    temp1 = '((' + new_cards[i[0]] + operators[o[0]] + new_cards[i[1]] + ')' + operators[o[1]] + \
+                            new_cards[
+                                i[2]] + ')' + operators[o[2]] + new_cards[i[3]]  ## 因为运算是从前往后的，所以这里加个括号
+                    temp2 = input_cards[i[0]] + operators[o[0]] + input_cards[i[1]] + operators[o[1]] + input_cards[
+                        i[2]] + \
+                            operators[o[2]] + input_cards[i[3]]
+                    if ('joker' in temp1) or ('JOKER' in temp1):
+                        flag = 1
+                        print('ERROR')
+                    elif eval(temp1) == 24:
+                        print(temp2)
+                        flag = 2
+            if flag == 0:
+                print('NONE')
+        except:
+            break
+
+
+def fun_58():
+    """
+    走方格的方案数
+    https://www.nowcoder.com/practice/e2a22f0305eb4f2f9846e7d644dba09b?tpId=37&tqId=21314&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    请计算n*m的棋盘格子（n为横向的格子数，m为竖向的格子数）从棋盘左上角出发沿着边缘线从左上角走到右下角，总共有多少种走法，要求不能走回头路，即：只能往右和往下走，不能往左和往上走。
+    """
+
+    def f(n, m):
+        if n == 0 or m == 0:
+            return 1
+        return f(n - 1, m) + f(n, m - 1)
+
+    while True:
+        try:
+            n, m = map(int, input().split())
+            print(f(n, m))
+        except:
+            break
+
+
+def fun_59():
+    """
+    数组分组
+    https://www.nowcoder.com/practice/9af744a3517440508dbeb297020aca86?tpId=37&tqId=21316&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入int型数组，询问该数组能否分成两组，使得两组中各元素加起来的和相等，并且，所有5的倍数必须在其中一个组中，所有3的倍数在另一个组中（不包括5的倍数），不是5的倍数也不是3的倍数能放在任意一组，可以将数组分为空数组，能满足以上条件，输出true；不满足时输出false。
+    """
+
+    def fun(sum3, sum5, other):
+
+        if sum3 == sum5 and len(other) == 0:
+            return True
+        elif len(other) == 0:
+            return False
+        else:
+            return fun(sum3 + other[0], sum5, other[1:]) or fun(sum3, sum5 + other[0], other[1:])
+
+    while True:
+
+        try:
+            n = int(input())
+            num_list = list(map(int, input().split()))
+
+            list3, list5, other = [], [], []
+            for i in num_list:
+                if i % 3 == 0:
+                    list3.append(i)
+                    continue
+                if i % 5 == 0:
+                    list5.append(i)
+                    continue
+                other.append(i)
+            sum3 = sum(list3)
+            sum5 = sum(list5)
+            if fun(sum3, sum5, other):
+                print('true')
+            else:
+                print('false')
+
+
+        except:
+            break
+
+
+def fun_60():
+    """
+    人民币转换
+    https://www.nowcoder.com/practice/00ffd656b9604d1998e966d555005a4b?tpId=37&tqId=21318&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    考试题目和要点：
+
+    1、中文大写金额数字前应标明“人民币”字样。中文大写金额数字应用壹、贰、叁、肆、伍、陆、柒、捌、玖、拾、佰、仟、万、亿、元、角、分、零、整等字样填写。
+    2、中文大写金额数字到“元”为止的，在“元”之后，应写“整字，如532.00应写成“人民币伍佰叁拾贰元整”。在”角“和”分“后面不写”整字。
+    3、阿拉伯数字中间有“0”时，中文大写要写“零”字，阿拉伯数字中间连续有几个“0”时，中文大写金额中间只写一个“零”字，如6007.14，应写成“人民币陆仟零柒元壹角肆分“。
+    4、10应写作“拾”，100应写作“壹佰”。例如，1010.00应写作“人民币壹仟零拾元整”，110.00应写作“人民币壹佰拾元整”
+    5、十万以上的数字接千不用加“零”，例如，30105000.00应写作“人民币叁仟零拾万伍仟元整”
+    """
+    while True:
+        try:
+            rmb = input().split('.')
+            n = rmb[0]
+            m = rmb[1]
+            y = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]
+            z = ["元", "拾", "佰", "仟", "万", "拾", "佰", "仟", "亿", "拾", "佰", "仟", "万亿", "拾", "佰", "仟"]
+            t = ["角", "分"]
+            result_b = ''
+            for i in range(len(m)):
+                if m[i] == '0':
+                    continue
+                b = y[int(m[i])] + t[i]
+                result_b += b
+            result_a = '人民币'
+            for i in range(len(n)):
+                if n[i] == '0':
+                    result_a += '零'
+                else:
+                    a = y[int(n[i])] + z[len(n) - i - 1]
+                    result_a += a
+            s = result_a
+            s = s.replace('零零', '零')
+            s = s.replace('人民币零', '人民币')
+            s = s.replace('壹拾', '拾')
+            if result_b:
+                print(s + result_b)
+            else:
+                print(s + '整')
+        except:
+            break
+
+
+def fun_61():
+    """
+    字符统计
+    https://www.nowcoder.com/practice/c1f9561de1e240099bdb904765da9ad0?tpId=37&tqId=21325&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    输入一个只包含小写英文字母和数字的字符串，按照不同字符统计个数由多到少输出统计结果，如果统计的个数相同，则按照ASCII码由小到大排序输出。
+数据范围：字符串长度满足 1 \le len(str) \le 1000 \1≤len(str)≤1000
+    """
+    while True:
+        try:
+            temp = {}
+            a = input()
+            for x in a:
+                temp[x] = temp.get(x, 0) + 1
+            temp = list(temp.items())
+            temp = sorted(temp, key=lambda y: ord(y[0]))
+            temp = sorted(temp, key=lambda y: y[1], reverse=True)
+            res = ""
+            for x in temp:
+                res += x[0]
+            print(res)
+        except:
+            break
+
+
+def fun_62():
+    """
+    Redraiment的走法
+    https://www.nowcoder.com/practice/24e6243b9f0446b081b1d6d32f2aa3aa?tpId=37&tqId=21326&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    Redraiment是走梅花桩的高手。Redraiment可以选择任意一个起点，从前到后，但只能从低处往高处的桩子走。他希望走的步数最多，你能替Redraiment研究他最多走的步数吗？
+    """
+    "2 5 1 5 4 5"
+    while True:
+        try:
+            num = int(input())
+            vec = list(map(int, input().strip().split()))
+            L = [1] * num
+            for i in range(1, num):
+                for j in range(0, i):
+                    if vec[i] > vec[j]:
+                        L[i] = max(L[i], L[j] + 1)
+            print(max(L))
+        except:
+            break
+
+
+def fun_63():
+    """
+    求解立方根
+    https://www.nowcoder.com/practice/caf35ae421194a1090c22fe223357dca?tpId=37&tqId=21330&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    计算一个浮点数的立方根，不使用库函数。
+    保留一位小数。
+    """
+    while True:
+        try:
+            num = float(input())
+            if num == 0:
+                print(0)
+            if num > 0:
+                sig = 1
+            else:
+                sig = -1
+            num = abs(num)
+            if num > 1:
+                start = 0
+                end = num
+            else:
+                start = num
+                end = 1
+            mid = (start + end) / 2.0
+            while abs(mid ** 3 - num) > 0.001:
+                if mid ** 3 < num:
+                    start = mid
+                else:
+                    end = mid
+                mid = (start + end) / 2
+            print(round(sig * mid, 1))
+        except:
+            break
+
+
+def fun_64():
+    """
+    求最小公倍数
+    https://www.nowcoder.com/practice/22948c2cad484e0291350abad86136c3?tpId=37&tqId=21331&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
+    正整数A和正整数B 的最小公倍数是指 能被A和B整除的最小的正整数值，设计一个算法，求输入A和B的最小公倍数。
+    """
+    while True:
+        try:
+            a, b = list(map(int, input().split()))
+            if a < b:
+                a, b = b, a
+            for i in range(a, a * b + 1, a):
+                if i % b == 0:
+                    print(i)
+                    break
+        except:
+            break
