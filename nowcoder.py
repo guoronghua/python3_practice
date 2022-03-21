@@ -1833,8 +1833,7 @@ def fun_46():
             n = int(input())
             mdict = {}
             for i in range(n):
-                mdict[chr(ord('A') + i)] = list(
-                    map(int, input().strip().split()))  ## 用strip()先去掉可能隐藏的末尾空格。再split(),防止map不过去
+                mdict[chr(ord('A') + i)] = list(map(int, input().strip().split()))  ## 用strip()先去掉可能隐藏的末尾空格。再split(),防止map不过去
             s = input()
             result = 0
             temp = []
@@ -2127,12 +2126,8 @@ def fun_57():
 
             for o in operator_cases:
                 for i in itertools.permutations(range(4), 4):  # 长度r元组，所有可能的排列，无重复元素, combinations() 方式类似 长度r元组，有序，无重复元素
-                    temp1 = '((' + new_cards[i[0]] + operators[o[0]] + new_cards[i[1]] + ')' + operators[o[1]] + \
-                            new_cards[
-                                i[2]] + ')' + operators[o[2]] + new_cards[i[3]]  ## 因为运算是从前往后的，所以这里加个括号
-                    temp2 = input_cards[i[0]] + operators[o[0]] + input_cards[i[1]] + operators[o[1]] + input_cards[
-                        i[2]] + \
-                            operators[o[2]] + input_cards[i[3]]
+                    temp1 = '((' + new_cards[i[0]] + operators[o[0]] + new_cards[i[1]] + ')' + operators[o[1]] + new_cards[i[2]] + ')' + operators[o[2]] + new_cards[i[3]]  ## 因为运算是从前往后的，所以这里加个括号
+                    temp2 = input_cards[i[0]] + operators[o[0]] + input_cards[i[1]] + operators[o[1]] + input_cards[i[2]] + operators[o[2]] + input_cards[i[3]]
                     if ('joker' in temp1) or ('JOKER' in temp1):
                         flag = 1
                         print('ERROR')
@@ -2322,7 +2317,7 @@ def fun_63():
                 start = num
                 end = 1
             mid = (start + end) / 2.0
-            while abs(mid ** 3 - num) > 0.001:
+            while abs(mid ** 3 - num) > 0.00001:
                 if mid ** 3 < num:
                     start = mid
                 else:
