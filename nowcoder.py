@@ -80,8 +80,8 @@ def fun_04():
         try:
             l = input()
             for i in range(0, len(l), 8):
-                print("{:0<8s}".format(l[
-                                       i:i + 8]))  # format 格式。表示 输出0~8位字符，“<” 表示左对齐，冒号前面的0是格式化编号，有多个输出的时候标为{0}，{1}；冒号后的0表示以0填充其余位置，s是字符串格式输出的意思
+                print("{0:0<8s}".format(l[
+                                        i:i + 8]))  # format 格式。表示 输出0~8位字符，“<” 表示左对齐，冒号前面的0是格式化编号，有多个输出的时候标为{0}，{1}；冒号后的0表示以0填充其余位置，s是字符串格式输出的意思
         except:
             break
 
@@ -257,7 +257,7 @@ def fun_14():
     如果要买归类为附件的物品，必须先买该附件所属的主件，且每件物品只能购买一次。
     每个主件可以有 0 个、 1 个或 2 个附件。附件不再有从属于自己的附件。
     王强查到了每件物品的价格（都是 10 元的整数倍），而他只有 N 元的预算。除此之外，他给每件物品规定了一个重要度，用整数 1 ~ 5 表示。他希望在花费不超过 N 元的前提下，使自己的满意度达到最大。
-    满意度是指所购买的每件物品的价格与重要度的乘积的总和，假设设第ii件物品的价格为v[i]v[i]，重要度为w[i]w[i]，共选中了kk件物品，编号依次为j_1,j_2,...,j_kj     ​
+    满意度是指所购买的每件物品的价格与重要度的乘积的总和，假设设第ii件物品的价格为v[i]，重要度为w[i]，共选中了kk件物品，编号依次为j_1,j_2,...,j_kj     ​
 
     输入描述：
     输入的第 1 行，为两个正整数N，m，用一个空格隔开：
@@ -270,8 +270,8 @@ def fun_14():
     # 处理输入
     n, m = map(int, input().split())
     n //= 10  # 价格总为 10 的倍数，优化空间复杂度
-    prices = defaultdict(lambda: [0, 0, 0])  # 主从物品的价格
-    values = defaultdict(lambda: [0, 0, 0])  # 主从物品的价值
+    prices = defaultdict(lambda: [0, 0, 0])  # 0，0，0 主从从 物品的价格
+    values = defaultdict(lambda: [0, 0, 0])  # 0，0，0 主从从 物品的价值
 
     for i in range(1, m + 1):  # i 代表第 i 个物品
         v, p, q = map(int, input().split())
@@ -289,15 +289,15 @@ def fun_14():
     # 处理输出
     dp = [0] * (n + 1)  # 初始化 dp 数组
 
-    for i, v in prices.items():
-        for j in range(n, v[0] - 1, -1):
+    for i, v in prices.items():  # 遍历每一个物品价格
+        for j in range(n, v[0] - 1, -1):  # 价格从n到当前主物的价格v[0]遍历
             p1, p2, p3 = v
-            v1, v2, v3 = values[i]
+            v1, v2, v3 = values[i] # 满意度
             # 处理主从组合的四种情况
-            dp[j] = max(dp[j], dp[j - p1] + v1)  # 主件
-            dp[j] = max(dp[j], dp[j - p1 - p2] + v1 + v2) if j >= p1 + p2 else dp[j]  # 主件 + 附件1
-            dp[j] = max(dp[j], dp[j - p1 - p3] + v1 + v3) if j >= p1 + p3 else dp[j]  # 主件 + 附件2
-            dp[j] = max(dp[j], dp[j - p1 - p2 - p3] + v1 + v2 + v3) if j >= p1 + p2 + p3 else dp[j]  # 主件 + 附件1 + 附件2
+            dp[j] = max(dp[j], dp[j - p1] + v1)  # 只选主件的满意度
+            dp[j] = max(dp[j], dp[j - p1 - p2] + v1 + v2) if j >= p1 + p2 else dp[j]  # 主件 + 附件1的满意度
+            dp[j] = max(dp[j], dp[j - p1 - p3] + v1 + v3) if j >= p1 + p3 else dp[j]  # 主件 + 附件2的满意度
+            dp[j] = max(dp[j], dp[j - p1 - p2 - p3] + v1 + v2 + v3) if j >= p1 + p2 + p3 else dp[j]  # 主件 + 附件1 + 附件2的满意度
     print(dp[n] * 10)
 
 
@@ -660,7 +660,11 @@ def fun_23():
     输出:
     输出一个整数 K ，表示你求得的“最佳方案”组成“素数伴侣”的对数。
 
-    解题思路： 1.判断一个数是否为素数：在这里需要注意的是全部数判断会超时，所以选择半位数来判断可以节省时间。选用原理：一个数能被另一个数除尽，则这个数也能被它的2倍数除尽，一个数不能被另一个数除尽则也不能被它的2倍数除尽。 2.判断最大匹配数： 这个是参考已有的答案来的，一个列表里的数与另一个列表里的每一个数判断，如果他们的和是素数就标记，若这个数还有另一个匹配的数，则看看之前匹配的数是否还有其他匹配的数，有则这个数就被当前数替代，没有则跳过。如此一来得到的数即为最大匹配数 3.数的分配与具体判断实现： 奇数和奇数相加与偶数和偶数相加得到的是偶数不可能是素数，只能是奇数和偶数相加才可能存在素数。因此将所有可匹配的数按奇数和偶数分为两个列表。然后让每一个奇数与所有偶数列表的数去匹配看相加的和是否为素数，如果是则加1。最终将计算的数打印出来
+    解题思路： 1.判断一个数是否为素数：在这里需要注意的是全部数判断会超时，所以选择半位数来判断可以节省时间。选用原理：一个数能被另一个数除尽，则这个数也能被它的2倍数除尽，
+    一个数不能被另一个数除尽则也不能被它的2倍数除尽。 2.判断最大匹配数： 这个是参考已有的答案来的，一个列表里的数与另一个列表里的每一个数判断，如果他们的和是素数就标记，
+    若这个数还有另一个匹配的数，则看看之前匹配的数是否还有其他匹配的数，有则这个数就被当前数替代，没有则跳过。如此一来得到的数即为最大匹配数 3.数的分配与具体判断实现：
+    奇数和奇数相加与偶数和偶数相加得到的是偶数不可能是素数，只能是奇数和偶数相加才可能存在素数。因此将所有可匹配的数按奇数和偶数分为两个列表。然后让每一个奇数与所有偶数列表的数去匹配看相加的和是否为素数，
+    如果是则加1。最终将计算的数打印出来
 
     """
 
@@ -705,9 +709,11 @@ def fun_23():
 
 def fun_24():
     """
-    密码截取
+    密码截取，查找最长回文子串
     https://www.nowcoder.com/practice/3cd4621963e8454594f00199f4536bb1?tpId=37&tqId=21255&rp=1&ru=/ta/huawei&qru=/ta/huawei&difficulty=&judgeStatus=&tags=/question-ranking
-    Catcher是MCA国的情报员，他工作时发现敌国会用一些对称的密码进行通信，比如像这些ABBA，ABA，A，123321，但是他们有时会在开始或结束时加入一些无关的字符以防止别国破解。比如进行下列变化 ABBA->12ABBA,ABA->ABAKK,123321->51233214　。因为截获的串太长了，而且存在多种可能的情况（abaaab可看作是aba,或baaab的加密形式），Cathcer的工作量实在是太大了，他只能向电脑高手求助，你能帮Catcher找出最长的有效密码串吗？
+    Catcher是MCA国的情报员，他工作时发现敌国会用一些对称的密码进行通信，比如像这些ABBA，ABA，A，123321，但是他们有时会在开始或结束时加入一些无关的字符以防止别国破解。
+    比如进行下列变化 ABBA->12ABBA,ABA->ABAKK,123321->51233214　。因为截获的串太长了，而且存在多种可能的情况（abaaab可看作是aba,或baaab的加密形式），Cathcer的工作量实在是太大了，
+    他只能向电脑高手求助，你能帮Catcher找出最长的有效密码串吗？
     """
 
     def longp(s):
@@ -715,10 +721,12 @@ def fun_24():
         for i in range(len(s)):
             # 先判定奇数的，从i开始左右对比
             tmp = helper(s, i, i)
-            if len(tmp) > len(res): res = tmp
+            if len(tmp) > len(res):
+                res = tmp
             # 再判定偶数的，从i和i+1开始对比
             tmp = helper(s, i, i + 1)
-            if len(tmp) > len(res): res = tmp
+            if len(tmp) > len(res):
+                res = tmp
         print(len(res))
 
     def helper(s, l, r):
@@ -795,7 +803,7 @@ def fun_26():
         try:
             a = int(input())
             count = 1
-            result = [[None] * a for x in range(a)]
+            result = [[None] * a for _ in range(a)]
             for x in range(a):
                 for y in range(x + 1):
                     temp = count
@@ -967,23 +975,23 @@ def fun_30():
 
             def trans(num):
                 res = ""
-                h = int(num / 100)
+                h = int(num / 100)   # 处理百位数
 
                 if h != 0:
                     res += num10[h] + " hundred"
                 num %= 100
 
                 k = int(num / 10)
-                if k != 0:
+                if k != 0:     # 处理十位数
                     if h != 0:
                         res += " and "
-                    if k == 1:
+                    if k == 1:  # 20以内的
                         res += num20[num % 10]
                     else:
-                        res += num100[k - 2] + " "
+                        res += num100[k - 2] + " " # 超过20
                         if num % 10 != 0:
                             res += num10[num % 10]
-                elif (num % 10) != 0:
+                elif (num % 10) != 0:  # 处理个位数
                     if h != 0:
                         res += " and "
                     res += num10[num % 10]
@@ -1016,12 +1024,16 @@ def fun_31():
     def find_way(x, y, path):
         if x == m - 1 and y == n - 1:
             [print('({%s},{%s})' % (l[0], l[1])) for l in path]
+
         if x + 1 <= m - 1 and (x + 1, y) not in path and maze[x + 1][y] == '0':
             find_way(x + 1, y, path + [(x + 1, y)])
+
         if y + 1 <= n - 1 and (x, y + 1) not in path and maze[x][y + 1] == '0':
             find_way(x, y + 1, path + [(x, y + 1)])
+
         if x - 1 >= 0 and (x - 1, y) not in path and maze[x - 1][y] == '0':
             find_way(x - 1, y, path + [(x - 1, y)])
+
         if y - 1 >= 0 and (x, y - 1) not in path and maze[x][y - 1] == '0':
             find_way(x, y - 1, path + [(x, y - 1)])
 
@@ -1095,7 +1107,7 @@ def fun_32():
 
             line = [[False] * 9 for _ in range(9)]
             column = [[False] * 9 for _ in range(9)]
-            block = [[[False] * 9 for _a in range(3)] for _b in range(3)]
+            block = [[[False] * 9 for _ in range(3)] for _ in range(3)]
             valid = False
             spaces = list()
             for i in range(9):
