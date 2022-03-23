@@ -93,10 +93,7 @@ class Solution3:
     输出: 3
     解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
          请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
-
-
     """
-
     @staticmethod
     def length_of_longest_sub_string(s: str) -> int:
         s_length = len(s)
@@ -183,17 +180,24 @@ class Solution5:
 
     """
 
-    @staticmethod
-    def longest_palindrome(s: str) -> str:
-        result = s[0]
-        if s == s[::-1]:
-            return s
-        for i in range(2, len(s)):
-            for j in range(0, len(s) - i + 1):
-                sub_s = s[j:j + i]
-                if sub_s == sub_s[::-1] and len(sub_s) > len(result):
-                    result = sub_s
-        return result
+    def helper(self, s, l, r):
+        while l >= 0 and r < len(s) and s[l] == s[r]:
+            l -= 1
+            r += 1
+        return s[l + 1:r]
+
+    def longest_palindrome(self, s: str) -> str:
+        res = ''
+        for i in range(len(s)):
+            # 先判定奇数的，从i开始左右对比
+            tmp = self.helper(s, i, i)
+            if len(tmp) > len(res):
+                res = tmp
+            # 再判定偶数的，从i和i+1开始对比
+            tmp = self.helper(s, i, i + 1)
+            if len(tmp) > len(res):
+                res = tmp
+        return res
 
 
 class Solution6:
@@ -232,7 +236,7 @@ class Solution7:
     7. 整数反转
     https://leetcode-cn.com/problems/reverse-integer/
     给你一个 32 位的有符号整数 x ，返回将 x 中的数字部分反转后的结果。
-    如果反转后整数超过 32 位的有符号整数的范围 [−231,  231 − 1] ，就返回 0。
+    如果反转后整数超过 32 位的有符号整数的范围 [−2 31,  2 31 − 1] ，就返回 0。
 
     输入：x = 123
     输出：321
