@@ -1,15 +1,18 @@
-num10 = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-num20 = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen",
-         "nineteen"]
-num100 = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+def largestRectangleArea(heights) -> int:
+    left = 0
+    right = len(heights) - 1
+    result = 0
+    if len(heights) == 1:
+        return heights[0]
+    while left <= right:
+        aa = heights[left:right + 1]
+        bb = right - left + 1
+        area = min(heights[left:right + 1]) * (right - left + 1)
+        result = max([result, area])
+        if heights[left] > heights[right]:
+            right -= 1
+        else:
+            left += 1
+    return result
 
-
-edit = [[i + j for j in range(5)] for i in range(3)]
-print(edit)
-[
- [0, 1, 2, 3, 4],
- [1, 2, 3, 4, 5],
- [2, 3, 4, 5, 6],
- [3, 4, 5, 6, 7],
- [4, 5, 6, 7, 8]
- ]
+largestRectangleArea([5,5,1,7,1,1,5,2,7,6])

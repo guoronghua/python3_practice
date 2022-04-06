@@ -955,8 +955,7 @@ class Backtracking(object):
             if self.result[i] in [column, left_column, right_column]:  # 检查上一行,对角线上, 右上对角线上是否有皇后
                 return False
             left_column -= 1
-            right_column -= 1
-            i -= 1
+            right_column += 1
         return True
 
     def print_queens(self):

@@ -2107,7 +2107,7 @@ def fun_57():
     5.输出算式的运算顺序从左至右，不包含括号，如1+2+3*4的结果为24，2 A 9 A不能变为(2+1)*(9-1)=24
     6.如果存在多种算式都能计算得出24，只需输出一种即可，如果无法得出24，则输出“NONE”表示无解。
     7.因为都是扑克牌，不存在单个牌为0的情况，且没有括号运算，除数(即分母)的数字不可能为0
-    product('ABCD', repeat=2) = AA AB AC AD BA BB BC BD CA CB CC CD DA DB DC DD  返回元组，笛卡尔积，相当于嵌套的for循环
+    product('ABC', repeat=3) = AAA AAB AAC ABA ABB ABC ACA ACB ACC BAA BAB BAC BBA BBB BBC BCA BCB BCC CAA CAB CAC CBA CBB CBC CCA CCB CCC  返回元组，笛卡尔积，相当于嵌套的for循环
     permutations('ABCD', 2) = AB AC AD BA BC BD CA CB CD DA DB DC   长度r元组，所有可能的排列，无重复元素
     combinations('ABCD', 2) = AB AC AD BC BD CD    长度r元组，有序，无重复元素
     combinations_with_replacement('ABCD', 2)  AA AB AC AD BB BC BD CC CD DD 长度r元组，有序，元素可重复
