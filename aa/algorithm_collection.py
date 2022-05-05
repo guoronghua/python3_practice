@@ -555,7 +555,7 @@ class Graph(object):
             # queue.pop(0)意味着是队列的方式出元素，就是先进先出，而下面的for循环将节点v的所有子节点
             # 放到queue中，所以queue.pop(0)就实现了每次访问都是先将元素的子节点访问完毕，而不是优先叶子节点
             v = queue.pop(0)
-            for w in self.sequence[v]:
+            for w in self.sequence.get(v):
                 if w not in order and w not in queue:
                     # 这里可以直接order.append(w) 因为广度优先就是先访问节点的所有下级子节点，所以可以
                     # 将self.sequence[v]的值直接全部先给到order

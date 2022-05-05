@@ -80,8 +80,7 @@ def fun_04():
         try:
             l = input()
             for i in range(0, len(l), 8):
-                print("{0:0<8s}".format(l[
-                                        i:i + 8]))  # format 格式。表示 输出0~8位字符，“<” 表示左对齐，冒号前面的0是格式化编号，有多个输出的时候标为{0}，{1}；冒号后的0表示以0填充其余位置，s是字符串格式输出的意思
+                print("{0:0<8s}".format(l[i:i + 8]))  # format 格式。表示 输出0~8位字符，“<” 表示左对齐，冒号前面的0是格式化编号，有多个输出的时候标为{0}，{1}；冒号后的0表示以0填充其余位置，s是字符串格式输出的意思
         except:
             break
 
@@ -290,9 +289,9 @@ def fun_14():
     dp = [0] * (n + 1)  # 初始化 dp 数组
 
     for i, v in prices.items():  # 遍历每一个物品价格
-        for j in range(n, v[0] - 1, -1):  # 价格从n到当前主物的价格v[0]遍历
-            p1, p2, p3 = v
-            v1, v2, v3 = values[i] # 满意度
+        p1, p2, p3 = v
+        v1, v2, v3 = values[i]  # 满意度
+        for j in range(n, p1 - 1, -1):  # 价格从n到当前主物的价格v[0]遍历
             # 处理主从组合的四种情况
             dp[j] = max(dp[j], dp[j - p1] + v1)  # 只选主件的满意度
             dp[j] = max(dp[j], dp[j - p1 - p2] + v1 + v2) if j >= p1 + p2 else dp[j]  # 主件 + 附件1的满意度
@@ -566,11 +565,10 @@ def fun_21():
     通俗来说，能找到一个同学，他的两边的同学身高都依次严格降低的队形就是合唱队形。
     例子：
     123 124 125 123 121 是一个合唱队形
-    123 123 124 122不是合唱队形，因为前两名同学身高相等，不符合要求
-    123 122 121 122不是合唱队形，因为找不到一个同学，他的两侧同学身高递减。
+    123 123 124 122 不是合唱队形，因为前两名同学身高相等，不符合要求
+    123 122 121 122 不是合唱队形，因为找不到一个同学，他的两侧同学身高递减。
     你的任务是，已知所有N位同学的身高，计算最少需要几位同学出列，可以使得剩下的同学排成合唱队形。
     注意：不允许改变队列元素的先后顺序 且 不要求最高同学左右人数必须相等
-
     """
     import bisect  # 引入二分法
     def hcteam(l):  # 定义一个函数，寻找最长的子序列
@@ -1873,7 +1871,7 @@ def fun_47():
             b = b.lower()
             a = a.replace('?', '\w{1}').replace('.', '\.').replace('*', '\w*')  # \w{1}代表匹配一个0-9且小写字母 \w*代表匹配多个0-9或小写字母
             c = re.findall(a, b)  # c中为b中与a匹配的字符串
-            if (b in c):
+            if b in c:
                 print('true')
             else:
                 print('false')
@@ -2107,7 +2105,7 @@ def fun_57():
     5.输出算式的运算顺序从左至右，不包含括号，如1+2+3*4的结果为24，2 A 9 A不能变为(2+1)*(9-1)=24
     6.如果存在多种算式都能计算得出24，只需输出一种即可，如果无法得出24，则输出“NONE”表示无解。
     7.因为都是扑克牌，不存在单个牌为0的情况，且没有括号运算，除数(即分母)的数字不可能为0
-    product('ABC', repeat=3) = AAA AAB AAC ABA ABB ABC ACA ACB ACC BAA BAB BAC BBA BBB BBC BCA BCB BCC CAA CAB CAC CBA CBB CBC CCA CCB CCC  返回元组，笛卡尔积，相当于嵌套的for循环
+    product('ABC', repeat=2) = AA AB AC AD BA BB BC BD CA CB CC CD DA DB DC DD  返回元组，笛卡尔积，相当于嵌套的for循环
     permutations('ABCD', 2) = AB AC AD BA BC BD CA CB CD DA DB DC   长度r元组，所有可能的排列，无重复元素
     combinations('ABCD', 2) = AB AC AD BC BD CD    长度r元组，有序，无重复元素
     combinations_with_replacement('ABCD', 2)  AA AB AC AD BB BC BD CC CD DD 长度r元组，有序，元素可重复
@@ -2283,12 +2281,12 @@ def fun_62():
         try:
             num = int(input())
             vec = list(map(int, input().strip().split()))
-            L = [1] * num
+            dp = [1] * num
             for i in range(1, num):
                 for j in range(0, i):
                     if vec[i] > vec[j]:
-                        L[i] = max(L[i], L[j] + 1)
-            print(max(L))
+                        dp[i] = max(dp[i], dp[j] + 1)
+            print(max(dp))
         except:
             break
 

@@ -525,18 +525,19 @@ class Solution10:
                 return True
             return s[i - 1] == p[j - 1]
 
-        f = [[False] * (n + 1) for _ in range(m + 1)]
-        f[0][0] = True
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True
         for i in range(m + 1):
             for j in range(1, n + 1):
                 if p[j - 1] == '*':
-                    f[i][j] |= f[i][j - 2]
-                    if matches(i, j - 1):
-                        f[i][j] |= f[i - 1][j]
+                    if dp[i][j - 2]:
+                        dp[i][j] = dp[i][j - 2]
+                    if matches(i, j - 1) and dp[i - 1][j]:
+                        dp[i][j] = dp[i - 1][j]
                 else:
-                    if matches(i, j):
-                        f[i][j] |= f[i - 1][j - 1]
-        return f[m][n]
+                    if matches(i, j) and dp[i - 1][j - 1]:
+                        dp[i][j] = dp[i - 1][j - 1]
+        return dp[m][n]
 
 
 class Solution11:
@@ -550,8 +551,6 @@ class Solution11:
     输入：[1,8,6,2,5,4,8,3,7]
     输出：49
     解释：图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。
-
-
     """
 
     @staticmethod
@@ -687,7 +686,6 @@ class Solution14:
     输入：strs = ["flower","flow","flight"]
     输出："fl"
 
-
     """
 
     @staticmethod
@@ -702,7 +700,7 @@ class Solution14:
         min_length = min([len(x) for x in str_list])
         low, high = 0, min_length
         while low < high:
-            mid = (high - low + 1) // 2 + low
+            mid = low + (high - low + 1) // 2
             if is_common_prefix(mid):
                 low = mid
             else:
@@ -729,7 +727,7 @@ class Solution15:
             return result
         nums.sort()
         for i in range(n):
-            if nums[i] > 0:
+            if nums[i] > 0: # 因为已经排序好，所以后面不可能有三个数加和等于 0，直接返回结果。
                 return result
             if i > 0 and nums[i] == nums[i - 1]:
                 continue
@@ -983,21 +981,36 @@ class Solution22:
 
     @staticmethod
     def generate_parenthesis(n: int) -> List[str]:
+        ans = []
 
-        res = []
-        cur_str = ''
-
-        def dfs(cur_str, left, right):
-            if left == 0 and right == 0:
-                res.append(cur_str)
+        def backtrack(s, left, right):
+            if len(s) == 2 * n:
+                ans.append(''.join(s))
                 return
-            if left > 0:
-                dfs(cur_str + '(', left - 1, right)
-            if right > 0 and right > left:
-                dfs(cur_str + ')', left, right - 1)
+            if left < n:   # 如果左括号数量不大于 n，我们可以放一个左括号
+                s.append('(')
+                backtrack(s, left + 1, right)
+                s.pop()    # 回朔
+            if right < left:  # 如果右括号数量小于左括号的数量，我们可以放一个右括号
+                s.append(')')
+                backtrack(s, left, right + 1)
+                s.pop()  # 回朔
 
-        dfs(cur_str, n, n)
-        return res
+        backtrack([], 0, 0)
+        return ans
+
+    @staticmethod
+    def generate_parenthesis_v2(n: int):
+        dp = [[] for _ in range(n + 1)]  # dp[i]存放i组括号的所有有效组合
+        dp[0] = [""]  # 初始化dp[0]
+        for i in range(1, n + 1):  # 计算dp[i]
+            for p in range(i):  # 遍历p
+                l1 = dp[p]  # 得到dp[p]的所有有效组合
+                l2 = dp[i - 1 - p]  # 得到dp[q]的所有有效组合
+                for k1 in l1:
+                    for k2 in l2:
+                        dp[i].append("({0}){1}".format(k1, k2))
+        print(dp[n])
 
 
 class Solution23:
@@ -1060,6 +1073,7 @@ class Solution24:
         while temp.next and temp.next.next:
             node1 = temp.next
             node2 = temp.next.next
+
             temp.next = node2
             node1.next = node2.next
             node2.next = node1
@@ -1112,6 +1126,7 @@ class Solution25:
             while stack:
                 p.next = stack.pop()
                 p = p.next
+
             # 与剩下链表连接起来
             p.next = tmp
             head = tmp
@@ -1125,7 +1140,7 @@ class Solution26:
     https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/
     给你一个 升序排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。元素的 相对顺序 应该保持 一致 。
     输入：nums = [1,1,2]
-    输出：2, nums = [1,2,_]
+    输出：2, nums = [1,2]
     解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
 
     输入：nums = [0,0,1,1,1,2,2,3,3,4]
@@ -1389,18 +1404,28 @@ class Solution31:
 
     输入：nums = [3,2,1]
     输出：[1,2,3]
+
+    [4,5,2,6,3,1] -> [4,5,3,6,2,1]
+
+    [4,5,3,6,2,1] -> [4,5,3,1,2,6]
+
+
+    1.我们需要将一个左边的「较小数」与一个右边的「较大数」交换，以能够让当前排列变大，从而得到下一个排列。
+    2.同时我们要让这个「较小数」尽量靠右，而「较大数」要尽可能小。当交换完成后，「较大数」右边的数需要按照升序重新排列。这样可以在保证新排列大于原来排列的情况下，使变大的幅度尽可能小。
     """
 
     @staticmethod
     def next_permutation(nums: List[int]) -> None:
         i = len(nums) - 2
-        while i >= 0 and nums[i] >= nums[i + 1]:
+        while i >= 0 and nums[i] >= nums[i + 1]:  # 首先从后向前查找第一个顺序对 (i,i+1)，满足 a[i] < a[i+1]。这样「较小数」即为 a[i]。此时 [i+1,n) 必然是下降序列。
             i -= 1
+
         if i >= 0:
             j = len(nums) - 1
-            while j >= 0 and nums[i] >= nums[j]:
+            while j >= 0 and nums[i] >= nums[j]:  # 如果找到了顺序对，那么在区间 [i+1,n) 中从后向前查找第一个元素 j 满足 a[i] < a[j]。这样「较大数」即为 a[j]。
                 j -= 1
-            nums[i], nums[j] = nums[j], nums[i]
+
+            nums[i], nums[j] = nums[j], nums[i] # 交换 a[i] 与 a[j]，此时可以证明区间 [i+1,n) 必为降序。我们可以直接使用双指针反转区间 [i+1,n) 使其变为升序，而无需对该区间进行排序。
 
         left, right = i + 1, len(nums) - 1
         while left < right:
@@ -1418,6 +1443,8 @@ class Solution32:
     输出：4
     解释：最长有效括号子串是 "()()"
 
+    始终保持栈底元素为当前已经遍历过的元素中「最后一个没有被匹配的右括号的下标」
+    当前右括号的下标减去栈顶元素即为「以该右括号为结尾的最长有效括号的长度」
     """
 
     @staticmethod
@@ -1427,14 +1454,14 @@ class Solution32:
         ans = 0
         stack.append(-1)
         while i < len(s):
-            if s[i] == "(":
+            if s[i] == "(":  # 对于遇到的每个(，我们将它的下标放入栈中
                 stack.append(i)
             else:
-                stack.pop()
-                if len(stack) == 0:
+                stack.pop() # 对于遇到的每个)，我们先弹出栈顶元素表示匹配了当前右括号
+                if len(stack) == 0: # 如果栈为空，说明当前的右括号为没有被匹配的右括号，我们将其下标放入栈中来更新我们之前提到的「最后一个没有被匹配的右括号的下标」
                     stack.append(i)
                 else:
-                    ans = max(ans, i - stack[-1])
+                    ans = max(ans, i - stack[-1]) # 如果栈不为空，当前右括号的下标减去栈顶元素即为「以该右括号为结尾的最长有效括号的长度」
             i += 1
         return ans
 
@@ -1463,7 +1490,7 @@ class Solution33:
             mid = int((left + right) / 2)
             if nums[mid] == target:
                 return mid
-            if nums[0] <= nums[mid]:
+            if nums[0] <= nums[mid]:  # 左边是有序的
                 if nums[0] <= target < nums[mid]:
                     right = mid - 1
                 else:
@@ -1511,8 +1538,8 @@ class Solution34:
         if len(nums) == 0 or nums[0] > target or nums[-1] < target:
             return [-1, -1]
 
-        lm = self.find(nums, target, 1)
-        rm = self.find(nums, target, 0)
+        lm = self.find(nums, target, 1) # 找第一个等于target 的位置
+        rm = self.find(nums, target, 0) # 找第一个大于 target 的位置
 
         return [lm, rm]
 
@@ -1553,14 +1580,13 @@ class Solution36:
     数字 1-9 在每一行只能出现一次。
     数字 1-9 在每一列只能出现一次。
     数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
-
     """
 
     @staticmethod
     def is_valid_su_do_ku(board: List[List[str]]) -> bool:
-        rows = [[0] * 9 for i in range(9)]
-        columns = [[0] * 9 for i in range(9)]
-        sub_boxes = [[[0] * 9 for i in range(3)] for j in range(3)]
+        rows = [[0] * 9 for _ in range(9)]
+        columns = [[0] * 9 for _ in range(9)]
+        sub_boxes = [[[0] * 9 for _ in range(3)] for _ in range(3)]
         for i in range(9):
             for j in range(9):
                 c = board[i][j]
@@ -1608,7 +1634,7 @@ class Solution37:
 
         line = [[False] * 9 for _ in range(9)]
         column = [[False] * 9 for _ in range(9)]
-        block = [[[False] * 9 for _a in range(3)] for _b in range(3)]
+        block = [[[False] * 9 for _ in range(3)] for _ in range(3)]
         valid = False
         spaces = list()
 
@@ -1638,21 +1664,21 @@ class Solution38:
     countAndSay(2) = 读 "1" = 一 个 1 = "11"
     countAndSay(3) = 读 "11" = 二 个 1 = "21"
     countAndSay(4) = 读 "21" = 一 个 2 + 一 个 1 = "12" + "11" = "1211"
-
+    1.本质上只是依次统计字符串中连续相同字符的个数。
     """
 
     @staticmethod
     def count_and_say(n: int) -> str:
-        prev = "1"
+        prev = "1" # 记录每次 for 循环时 n-1 的结果
         for i in range(n - 1):
             curr = ""
             pos = 0
             start = 0
 
-            while pos < len(prev):
-                while pos < len(prev) and prev[pos] == prev[start]:
+            while pos < len(prev):  # 遍历上一次的结果
+                while pos < len(prev) and prev[pos] == prev[start]: # 统计连续相同字符的个数
                     pos += 1
-                curr += str(pos - start) + prev[start]
+                curr += str(pos - start) + prev[start]  # 更新当前统计到的连续相同字符的个数，
                 start = pos
             prev = curr
 
@@ -1688,11 +1714,11 @@ class Solution39:
             if target == 0:
                 ans.append(combine)
                 return
-            # // 直接跳过
-            dfs(candidates, combine, target, index + 1)
-            # // 选择当前数
+
+            dfs(candidates, combine, target, index + 1) # 直接跳过
+
             if target - candidates[index] >= 0:
-                dfs(candidates, combine + [candidates[index]], target - candidates[index], index)
+                dfs(candidates, combine + [candidates[index]], target - candidates[index], index) # 选择当前数
 
         ans = []
         combine = []
@@ -1737,6 +1763,7 @@ class Solution40:
                 return
 
             dfs(index + 1, target)
+
             most = min(target // freq[index][0], freq[index][1])
             for i in range(1, most + 1):
                 combine.append(freq[index][0])
@@ -1749,6 +1776,29 @@ class Solution40:
         dfs(0, target)
         return ans
 
+    @staticmethod
+    def combination_sum2(candidates: List[int], target: int) -> List[List[int]]:
+        def dfs(pos: int, rest: int):
+            nonlocal sequence
+            if rest == 0:
+                ans.append(sequence[:])
+                return
+            if pos == len(freq) or rest < freq[pos][0]:
+                return
+
+            dfs(pos + 1, rest)
+
+            most = min(rest // freq[pos][0], freq[pos][1])
+            for i in range(1, most + 1):
+                sequence.append(freq[pos][0])
+                dfs(pos + 1, rest - i * freq[pos][0])
+            sequence = sequence[:-most]
+
+        freq = sorted(collections.Counter(candidates).items())
+        ans = list()
+        sequence = list()
+        dfs(0, target)
+        return ans
 
 class Solution41:
     """
@@ -1773,6 +1823,7 @@ class Solution41:
         size = len(nums)
         for i in range(size):
             # 先判断这个数字是不是索引，然后判断这个数字是不是放在了正确的地方
+            # nums[i] - 1 表示这个nums[i] 应该放在的位置，即 3 应该放在索引为 2 的地方， 4 应该放在索引为 3 的地方
             while 1 <= nums[i] <= size and nums[i] != nums[nums[i] - 1]:
                 self.swap(nums, i, nums[i] - 1)
 
@@ -1804,15 +1855,15 @@ class Solution42:
     @staticmethod
     def trap(height: List[int]) -> int:
         ans = 0
-        stack = list()
-        for i, h in enumerate(height):
-            while stack and h > height[stack[-1]]:
-                top = stack.pop()
+        stack = list() # 维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减
+        for i, h in enumerate(height): # 从左到右遍历数组，遍历到下标 i 时
+            while stack and h > height[stack[-1]]: # 如果栈内至少有两个元素
+                top = stack.pop() # 记栈顶元素为 top
                 if not stack:
                     break
-                left = stack[-1]
-                curr_width = i - left - 1
-                curr_height = min(height[left], height[i]) - height[top]
+                left = stack[-1] # top 的下面一个元素是 left，则一定有 height[left]≥height[top]。
+                curr_width = i - left - 1 # 如果 height[i]>height[top]，则得到一个可以接雨水的区域,该区域的宽度是 i−left−1
+                curr_height = min(height[left], height[i]) - height[top] # 高度是 min(height[left],height[i])−height[top]
                 ans += curr_width * curr_height
             stack.append(i)
 
