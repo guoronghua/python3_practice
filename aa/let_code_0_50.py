@@ -57,7 +57,7 @@ class Solution2:
 
     def add_two_numbers(self, l1: ListNode, l2: ListNode) -> ListNode:
         root = self.ListNode(0)
-        cursor = root
+        cur = root
         carry = 0
         while l1 or l2 or carry != 0:
             l1_val = l1.val if l1 else 0
@@ -68,8 +68,8 @@ class Solution2:
 
             sum_node = self.ListNode(sum_val % 10)
 
-            cursor.next = sum_node
-            cursor = sum_node
+            cur.next = sum_node
+            cur = sum_node
 
             if l1:
                 l1 = l1.next
@@ -94,6 +94,7 @@ class Solution3:
     解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
          请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
     """
+
     @staticmethod
     def length_of_longest_sub_string(s: str) -> int:
         s_length = len(s)
@@ -220,7 +221,8 @@ class Solution6:
 
     @staticmethod
     def convert(s: str, num_rows: int) -> str:
-        if num_rows < 2: return s
+        if num_rows < 2:
+            return s
         res = ["" for _ in range(num_rows)]
         i, flag = 0, -1
         for c in s:
@@ -249,36 +251,13 @@ class Solution7:
     @staticmethod
     def reverse(x: int) -> int:
         res = 0
-        zz = 10 if x > 0 else -10
+        flag = 10 if x > 0 else -10
         while x != 0:
-            tmp = x % zz
-            if res > 214748364 or (res == 214748364 and tmp > 7):
+            res = res * 10 + (x % flag)
+            if res > 2 ** 31 - 1 or res < -2 ** 31:
                 return 0
-            if res < -214748364 or (res == -214748364 and tmp < -8):
-                return 0
-            res = res * 10 + tmp
             x = int(x / 10)
         return res
-
-    @staticmethod
-    def reverse2(x: int) -> int:
-        INT_MIN, INT_MAX = -2 ** 31, 2 ** 31 - 1
-
-        rev = 0
-        while x != 0:
-            # INT_MIN 也是一个负数，不能写成 rev < INT_MIN // 10
-            if rev < INT_MIN // 10 + 1 or rev > INT_MAX // 10:
-                return 0
-            digit = x % 10
-            # Python3 的取模运算在 x 为负数时也会返回 [0, 9) 以内的结果，因此这里需要进行特殊判断
-            if x < 0 and digit > 0:
-                digit -= 10
-
-            # 同理，Python3 的整数除法在 x 为负数时会向下（更小的负数）取整，因此不能写成 x //= 10
-            x = (x - digit) // 10
-            rev = rev * 10 + digit
-
-        return rev
 
 
 class Solution8:
@@ -386,12 +365,12 @@ class Solution9:
     @staticmethod
     def is_palindrome_02(x: int) -> bool:
         lst = list(str(x))
-        L, R = 0, len(lst) - 1
-        while L <= R:
-            if lst[L] != lst[R]:
+        l, r = 0, len(lst) - 1
+        while l <= r:
+            if lst[l] != lst[r]:
                 return False
-            L += 1
-            R -= 1
+            l += 1
+            r -= 1
         return True
 
     # 方法三: 进阶:不将整数转为字符串来解决: 使用log来计算x的位数
@@ -691,8 +670,8 @@ class Solution14:
     @staticmethod
     def longest_common_prefix(str_list: List[str]) -> str:
         def is_common_prefix(size):
-            str_0, count = str_list[0][:size], len(str_list)
-            return all(str_list[i][:size] == str_0 for i in range(1, count))
+            str_0 = str_list[0][:size]
+            return all(str_list[i][:size] == str_0 for i in range(1, len(str_list)))
 
         if not str_list:
             return ""
@@ -727,9 +706,9 @@ class Solution15:
             return result
         nums.sort()
         for i in range(n):
-            if nums[i] > 0: # 因为已经排序好，所以后面不可能有三个数加和等于 0，直接返回结果。
+            if nums[i] > 0:  # 因为已经排序好，所以后面不可能有三个数加和等于 0，直接返回结果。
                 return result
-            if i > 0 and nums[i] == nums[i - 1]:
+            if i > 0 and nums[i] == nums[i - 1]:  # 去重
                 continue
             l = i + 1
             r = n - 1
@@ -987,10 +966,12 @@ class Solution22:
             if len(s) == 2 * n:
                 ans.append(''.join(s))
                 return
-            if left < n:   # 如果左括号数量不大于 n，我们可以放一个左括号
+
+            if left < n:  # 如果左括号数量不大于 n，我们可以放一个左括号
                 s.append('(')
                 backtrack(s, left + 1, right)
-                s.pop()    # 回朔
+                s.pop()  # 回朔
+
             if right < left:  # 如果右括号数量小于左括号的数量，我们可以放一个右括号
                 s.append(')')
                 backtrack(s, left, right + 1)
@@ -998,19 +979,6 @@ class Solution22:
 
         backtrack([], 0, 0)
         return ans
-
-    @staticmethod
-    def generate_parenthesis_v2(n: int):
-        dp = [[] for _ in range(n + 1)]  # dp[i]存放i组括号的所有有效组合
-        dp[0] = [""]  # 初始化dp[0]
-        for i in range(1, n + 1):  # 计算dp[i]
-            for p in range(i):  # 遍历p
-                l1 = dp[p]  # 得到dp[p]的所有有效组合
-                l2 = dp[i - 1 - p]  # 得到dp[q]的所有有效组合
-                for k1 in l1:
-                    for k2 in l2:
-                        dp[i].append("({0}){1}".format(k1, k2))
-        print(dp[n])
 
 
 class Solution23:
@@ -1157,7 +1125,7 @@ class Solution26:
         n = len(nums)
         fast = slow = 1
         while fast < n:
-            if nums[fast] != nums[fast - 1]:
+            if nums[slow-1] != nums[fast]:
                 nums[slow] = nums[fast]
                 slow += 1
             fast += 1
@@ -1228,6 +1196,9 @@ class Solution28:
     """
 
     def str_str(self, haystack: str, needle: str) -> int:
+
+        # return haystack.find(needle)
+
         a = len(needle)
         b = len(haystack)
         if a == 0:
@@ -1277,67 +1248,20 @@ class Solution29:
 
     @staticmethod
     def divide(dividend: int, divisor: int) -> int:
-        INT_MIN, INT_MAX = -2 ** 31, 2 ** 31 - 1
-
-        # 考虑被除数为最小值的情况
-        if dividend == INT_MIN:
-            if divisor == 1:
-                return INT_MIN
-            if divisor == -1:
-                return INT_MAX
-
-        # 考虑除数为最小值的情况
-        if divisor == INT_MIN:
-            return 1 if dividend == INT_MIN else 0
-        # 考虑被除数为 0 的情况
-        if dividend == 0:
+        if not dividend:
             return 0
+        if dividend == -2 ** 31 and divisor == -1:
+            return 2 ** 31 - 1
+        flag = 0 if (dividend > 0 and divisor < 0) or (dividend < 0 and divisor > 0) else 1
 
-        # 一般情况，使用二分查找
-        # 将所有的正数取相反数，这样就只需要考虑一种情况
-        rev = False
-        if dividend > 0:
-            dividend = -dividend
-            rev = not rev
-        if divisor > 0:
-            divisor = -divisor
-            rev = not rev
-
-        # 快速乘
-        def quick_add(y: int, z: int, x: int) -> bool:
-            # x 和 y 是负数，z 是正数
-            # 需要判断 z * y >= x 是否成立
-            result, add = 0, y
-            while z > 0:
-                if (z & 1) == 1:
-                    # 需要保证 result + add >= x
-                    if result < x - add:
-                        return False
-                    result += add
-                if z != 1:
-                    # 需要保证 add + add >= x
-                    if add < x - add:
-                        return False
-                    add += add
-                # 不能使用除法
-                z >>= 1
-            return True
-
-        left, right, ans = 1, INT_MAX, 0
-        while left <= right:
-            # 注意溢出，并且不能使用除法
-            mid = left + ((right - left) >> 1)
-            check = quick_add(divisor, mid, dividend)
-            if check:
-                ans = mid
-                # 注意溢出
-                if mid == INT_MAX:
-                    break
-                left = mid + 1
-            else:
-                right = mid - 1
-
-        return -ans if rev else ans
+        dividend, divisor = abs(dividend), abs(divisor)
+        result = 0
+        for n in range(31, -1, -1):
+            if (divisor << n) <= dividend:
+                result += 1 << n
+                dividend -= divisor << n
+                continue
+        return result if flag else -result
 
 
 class Solution30:
@@ -1425,7 +1349,7 @@ class Solution31:
             while j >= 0 and nums[i] >= nums[j]:  # 如果找到了顺序对，那么在区间 [i+1,n) 中从后向前查找第一个元素 j 满足 a[i] < a[j]。这样「较大数」即为 a[j]。
                 j -= 1
 
-            nums[i], nums[j] = nums[j], nums[i] # 交换 a[i] 与 a[j]，此时可以证明区间 [i+1,n) 必为降序。我们可以直接使用双指针反转区间 [i+1,n) 使其变为升序，而无需对该区间进行排序。
+            nums[i], nums[j] = nums[j], nums[i]  # 交换 a[i] 与 a[j]，此时可以证明区间 [i+1,n) 必为降序。我们可以直接使用双指针反转区间 [i+1,n) 使其变为升序，而无需对该区间进行排序。
 
         left, right = i + 1, len(nums) - 1
         while left < right:
@@ -1457,11 +1381,11 @@ class Solution32:
             if s[i] == "(":  # 对于遇到的每个(，我们将它的下标放入栈中
                 stack.append(i)
             else:
-                stack.pop() # 对于遇到的每个)，我们先弹出栈顶元素表示匹配了当前右括号
-                if len(stack) == 0: # 如果栈为空，说明当前的右括号为没有被匹配的右括号，我们将其下标放入栈中来更新我们之前提到的「最后一个没有被匹配的右括号的下标」
+                stack.pop()  # 对于遇到的每个)，我们先弹出栈顶元素表示匹配了当前右括号
+                if len(stack) == 0:  # 如果栈为空，说明当前的右括号为没有被匹配的右括号，我们将其下标放入栈中来更新我们之前提到的「最后一个没有被匹配的右括号的下标」
                     stack.append(i)
                 else:
-                    ans = max(ans, i - stack[-1]) # 如果栈不为空，当前右括号的下标减去栈顶元素即为「以该右括号为结尾的最长有效括号的长度」
+                    ans = max(ans, i - stack[-1])  # 如果栈不为空，当前右括号的下标减去栈顶元素即为「以该右括号为结尾的最长有效括号的长度」
             i += 1
         return ans
 
@@ -1495,7 +1419,7 @@ class Solution33:
                     right = mid - 1
                 else:
                     left = mid + 1
-            else:
+            else:  # 右边是有序的
                 if nums[mid] < target <= nums[len(nums) - 1]:
                     left = mid + 1
                 else:
@@ -1538,8 +1462,8 @@ class Solution34:
         if len(nums) == 0 or nums[0] > target or nums[-1] < target:
             return [-1, -1]
 
-        lm = self.find(nums, target, 1) # 找第一个等于target 的位置
-        rm = self.find(nums, target, 0) # 找第一个大于 target 的位置
+        lm = self.find(nums, target, 1)  # 找第一个等于 target 的位置
+        rm = self.find(nums, target, 0)  # 找第一个大于 target 的位置
 
         return [lm, rm]
 
@@ -1669,14 +1593,14 @@ class Solution38:
 
     @staticmethod
     def count_and_say(n: int) -> str:
-        prev = "1" # 记录每次 for 循环时 n-1 的结果
+        prev = "1"  # 记录每次 for 循环时 n-1 的结果
         for i in range(n - 1):
             curr = ""
             pos = 0
             start = 0
 
             while pos < len(prev):  # 遍历上一次的结果
-                while pos < len(prev) and prev[pos] == prev[start]: # 统计连续相同字符的个数
+                while pos < len(prev) and prev[pos] == prev[start]:  # 统计连续相同字符的个数
                     pos += 1
                 curr += str(pos - start) + prev[start]  # 更新当前统计到的连续相同字符的个数，
                 start = pos
@@ -1708,21 +1632,21 @@ class Solution39:
     @staticmethod
     def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
 
-        def dfs(candidates, combine, target, index):
+        def dfs(combine, target, index):
             if index == len(candidates):
                 return
             if target == 0:
                 ans.append(combine)
                 return
 
-            dfs(candidates, combine, target, index + 1) # 直接跳过
+            dfs(combine, target, index + 1)  # 直接跳过
 
             if target - candidates[index] >= 0:
-                dfs(candidates, combine + [candidates[index]], target - candidates[index], index) # 选择当前数
+                dfs(combine + [candidates[index]], target - candidates[index], index)  # 选择当前数
 
         ans = []
         combine = []
-        dfs(candidates, combine, target, 0)
+        dfs(combine, target, 0)
         return ans
 
 
@@ -1753,52 +1677,31 @@ class Solution40:
 
     @staticmethod
     def combination_sum2(candidates: List[int], target: int) -> List[List[int]]:
-
-        def dfs(index: int, target: int):
-            nonlocal combine
+        def dfs(combine, target, index):
             if target == 0:
-                ans.append(combine[:])
-                return
-            if index == len(freq) or target < freq[index][0]:
+                res.append(combine[:])
                 return
 
-            dfs(index + 1, target)
+            for i in range(index, len(candidates)):
+                if candidates[i] > target:
+                    break
 
-            most = min(target // freq[index][0], freq[index][1])
-            for i in range(1, most + 1):
-                combine.append(freq[index][0])
-                dfs(index + 1, target - i * freq[index][0])
-            combine = combine[:-most]
+                if i > index and candidates[i - 1] == candidates[i]:
+                    continue
 
-        freq = sorted(collections.Counter(candidates).items())
-        ans = list()
-        combine = list()
-        dfs(0, target)
-        return ans
+                combine.append(candidates[i])
+                dfs(combine, target - candidates[i], i + 1)
+                combine.pop()
 
-    @staticmethod
-    def combination_sum2(candidates: List[int], target: int) -> List[List[int]]:
-        def dfs(pos: int, rest: int):
-            nonlocal sequence
-            if rest == 0:
-                ans.append(sequence[:])
-                return
-            if pos == len(freq) or rest < freq[pos][0]:
-                return
+        if len(candidates) == 0:
+            return []
 
-            dfs(pos + 1, rest)
+        candidates.sort()
+        res = []
+        combine = []
+        dfs(combine, target, 0)
+        return res
 
-            most = min(rest // freq[pos][0], freq[pos][1])
-            for i in range(1, most + 1):
-                sequence.append(freq[pos][0])
-                dfs(pos + 1, rest - i * freq[pos][0])
-            sequence = sequence[:-most]
-
-        freq = sorted(collections.Counter(candidates).items())
-        ans = list()
-        sequence = list()
-        dfs(0, target)
-        return ans
 
 class Solution41:
     """
@@ -1825,6 +1728,7 @@ class Solution41:
             # 先判断这个数字是不是索引，然后判断这个数字是不是放在了正确的地方
             # nums[i] - 1 表示这个nums[i] 应该放在的位置，即 3 应该放在索引为 2 的地方， 4 应该放在索引为 3 的地方
             while 1 <= nums[i] <= size and nums[i] != nums[nums[i] - 1]:
+
                 self.swap(nums, i, nums[i] - 1)
 
         for i in range(size):
@@ -1855,19 +1759,38 @@ class Solution42:
     @staticmethod
     def trap(height: List[int]) -> int:
         ans = 0
-        stack = list() # 维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减
-        for i, h in enumerate(height): # 从左到右遍历数组，遍历到下标 i 时
-            while stack and h > height[stack[-1]]: # 如果栈内至少有两个元素
-                top = stack.pop() # 记栈顶元素为 top
+        stack = list()  # 维护一个单调栈，单调栈存储的是下标，满足从栈底到栈顶的下标对应的数组 height 中的元素递减
+        for i, h in enumerate(height):  # 从左到右遍历数组，遍历到下标 i 时
+            while stack and h > height[stack[-1]]:  # 如果栈内至少有两个元素
+                top = stack.pop()  # 记栈顶元素为 top
                 if not stack:
                     break
-                left = stack[-1] # top 的下面一个元素是 left，则一定有 height[left]≥height[top]。
-                curr_width = i - left - 1 # 如果 height[i]>height[top]，则得到一个可以接雨水的区域,该区域的宽度是 i−left−1
-                curr_height = min(height[left], height[i]) - height[top] # 高度是 min(height[left],height[i])−height[top]
+                left = stack[-1]  # top 的下面一个元素是 left，则一定有 height[left]≥height[top]。
+                curr_width = i - left - 1  # 如果 height[i]>height[top]，则得到一个可以接雨水的区域,该区域的宽度是 i−left−1
+                curr_height = min(height[left], height[i]) - height[top]  # 高度是 min(height[left],height[i])−height[top]
                 ans += curr_width * curr_height
             stack.append(i)
 
         return ans
+
+    @staticmethod
+    def trap_v2(height: List[int]) -> int:  # 双指针法
+        ans = 0
+        left, right = 0, len(height) - 1
+        left_max = right_max = 0
+
+        while left < right:
+            left_max = max(left_max, height[left])
+            right_max = max(right_max, height[right])
+            if height[left] < height[right]:
+                ans += left_max - height[left]
+                left += 1
+            else:
+                ans += right_max - height[right]
+                right -= 1
+
+        return ans
+
 
 
 class Solution43:
@@ -1882,6 +1805,26 @@ class Solution43:
     输入: num1 = "123", num2 = "456"
     输出: "56088"
     """
+
+    @staticmethod
+    def multiply_v2(num1: str, num2: str) -> str:  # 如 num1 为‘123’；num2为‘345’，l1存储的值为[100,20,3]；l2存储的值为[300,40,5]，
+        l1, l2 = [], []
+        len1, len2 = len(num1), len(num2)
+
+        for i in range(len1):
+            n = int(num1[i]) * 10 ** (len1 - i - 1)
+            l1.append(n)
+
+        for i in range(len2):
+            n = int(num2[i]) * 10 ** (len2 - i - 1)
+            l2.append(n)
+
+        res = 0
+        for i in l1:            # 然后遍历两个列表，依次相乘相加即可
+            for j in l2:
+                res = res + i * j
+
+        return str(res)
 
     def multiply(self, num1: str, num2: str) -> str:
         if num1 == "0" or num2 == "0":
@@ -1903,6 +1846,8 @@ class Solution43:
             ans = self.add_strings(ans, curr)
 
         return ans
+
+
 
     @staticmethod
     def add_strings(num1: str, num2: str) -> str:
@@ -1966,7 +1911,8 @@ class Solution44:
 
         dp = [[False] * (n + 1) for _ in range(m + 1)]  # dp[i][0]=False，即空模式无法匹配非空字符串；
         dp[0][0] = True  # dp[0][0]=True，即当字符串 ss 和模式 pp 均为空时，匹配成功
-        for i in range(1, n + 1):  # dp[0][j] 需要分情况讨论：因为星号才能匹配空字符串，所以只有当模式p的前j个字符均为星号时，dp[0][j] 才为真。
+
+        for i in range(1, n + 1):  # dp[0][i] 需要分情况讨论：因为星号才能匹配空字符串，所以只有当模式p的前i个字符均为星号时，dp[0][i] 才为真。
             if p[i - 1] == '*':
                 dp[0][i] = True
             else:
@@ -2146,7 +2092,7 @@ class Solution50:
         def quickMul(N):
             if N == 0:
                 return 1.0
-            y = quickMul(N // 2)
-            return y * y if N % 2 == 0 else y * y * x
+            y = quickMul(N // 2)              # 从右往左看，分治的思想就十分明显了
+            return y * y if N % 2 == 0 else y * y * x  # 每次直接把上一次的结果进行平方, 根据 N 的是奇数还是偶数觉得是否 *x
 
         return quickMul(n) if n >= 0 else 1.0 / quickMul(-n)

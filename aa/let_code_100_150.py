@@ -196,7 +196,7 @@ class Solution5:
 
     @staticmethod
     def num_distinct(s: str, t: str) -> int:
-        @functools.cache  # Python functools记忆化模块，等价于哈希表记录的功能
+        @functools.lru_cache # Python functools 记忆化模块，等价于哈希表记录的功能
         def dfs(i, j):
 
             if j == len(t):  # t匹配完了
@@ -220,19 +220,16 @@ class Solution5:
         if m < n:
             return 0
 
-        dp = [[0] * (n + 1) for _ in range(
-            m + 1)]  # 创建二维数组 dp[i][j] 表示在 s[i:] 的子序列中 t[j:] 出现的个数。s[i:] 表示 s 从下标 i 到末尾的子字符串，t[j:] 表示 t 从下标 j 到末尾的子字符串
+        dp = [[0] * (n + 1) for _ in range(m + 1)]  # 创建二维数组 dp[i][j] 表示在 s[i:] 的子序列中 t[j:] 出现的个数。s[i:] 表示 s 从下标 i 到末尾的子字符串，t[j:] 表示 t 从下标 j 到末尾的子字符串
         for i in range(m + 1):  # 当 j=n 时, t[j:] 为空字符串，由于空字符串是任何字符串的子序列，因此对任意 0≤ i ≤m，有 dp[i][n]=1
             dp[i][n] = 1
 
         for i in range(m - 1, -1, -1):
             for j in range(n - 1, -1, -1):
                 if s[i] == t[j]:  # 当 s[i]=t[j] 时，如果 s[i] 和 t[j] 匹配，则考虑 t[j+1:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j+1]，
-                    dp[i][j] = dp[i + 1][j + 1] + dp[i + 1][
-                        j]  # 如果 s[i] 不和 t[j] 匹配，则考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
+                    dp[i][j] = dp[i + 1][j + 1] + dp[i + 1][j]  # 如果 s[i] 不和 t[j] 匹配，则考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
                 else:
-                    dp[i][j] = dp[i + 1][
-                        j]  # 当 s[i]!=t[j] 时，s[i] 不能和 t[j] 匹配，因此只考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
+                    dp[i][j] = dp[i + 1][j]  # 当 s[i]!=t[j] 时，s[i] 不能和 t[j] 匹配，因此只考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
 
         return dp[0][0]
 
@@ -282,7 +279,7 @@ class Solution6:
                 # 不是相同父节点的，但同一层的
                 if head.next:
                     head.right.next = head.next.left
-                # 指针向后移动
+                # 指针向后移动，遍历完这一层
                 head = head.next
             # 去下一层的最左的节点
             leftmost = leftmost.left
@@ -337,4 +334,276 @@ class Solution8:
 
         return min(f[n - 1])
 
-print([2,4,5,6,7].index(5))
+
+class Solution9:
+    """
+    根据身高重建队列
+    https://leetcode.cn/problems/queue-reconstruction-by-height/
+    假设有打乱顺序的一群人站成一个队列，数组 people 表示队列中一些人的属性（不一定按顺序）。每个 people[i] = [hi, ki] 表示第 i 个人的身高为 hi ，前面 正好 有 ki 个身高大于或等于 hi 的人。
+    请你重新构造并返回输入数组 people 所表示的队列。返回的队列应该格式化为数组 queue ，其中 queue[j] = [hj, kj] 是队列中第 j 个人的属性（queue[0] 是排在队列前面的人）。
+    输入：people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]
+    输出：[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]
+    解释：
+    编号为 0 的人身高为 5 ，没有身高更高或者相同的人排在他前面。
+    编号为 1 的人身高为 7 ，没有身高更高或者相同的人排在他前面。
+    编号为 2 的人身高为 5 ，有 2 个身高更高或者相同的人排在他前面，即编号为 0 和 1 的人。
+    编号为 3 的人身高为 6 ，有 1 个身高更高或者相同的人排在他前面，即编号为 1 的人。
+    编号为 4 的人身高为 4 ，有 4 个身高更高或者相同的人排在他前面，即编号为 0、1、2、3 的人。
+    编号为 5 的人身高为 7 ，有 1 个身高更高或者相同的人排在他前面，即编号为 1 的人。
+    因此 [[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]] 是重新构造后的队列。
+    """
+
+    @staticmethod
+    def reconstruct_queue(people: List[List[int]]) -> List[List[int]]:
+        people.sort(key=lambda x: (-x[0], x[1]))  # 将每个人按照身高从大到小进行排序,按照 hi 为第一关键字降序，ki为第二关键字升序进行排序
+        ans = list()
+        for person in people:
+            ans[person[1]:person[1]] = [person]
+        return ans
+
+
+class ListNode(object):
+    def __init__(self, val, nx=None):
+        self.val = val
+        self.next = nx
+
+
+class Solution10:
+    """
+    https://leetcode.cn/problems/next-greater-node-in-linked-list/
+    链表中的下一个更大节点
+    给定一个长度为 n 的链表 head
+    对于列表中的每个节点，查找下一个 更大节点 的值。也就是说，对于每个节点，找到它旁边的第一个节点的值，这个节点的值 严格大于 它的值。
+    """
+
+    @staticmethod
+    def next_larger_nodes(head: Optional[ListNode]) -> List[int]:
+        temp = []
+        while head:
+            temp.append(head.val)
+            head = head.next
+        st = []  # 单调栈，基于当前链表建一个数组，设一个单调栈存取数组下标，栈底元素最大，每次遍历都将小于当前元素的栈顶元素弹出并且更新答案数组
+        n = len(temp)
+        ans = [0] * n
+        for i in range(n):
+            while len(st) != 0 and temp[st[- 1]] < temp[i]:
+                ans[st[- 1]] = temp[i]
+                st.pop()
+            st.append(i)
+        return ans
+
+
+class Node:
+    def __init__(self, data, _pre=None, _next=None):
+        self.data = data
+        self.pre = _pre
+        self.next = _next
+
+    def __str__(self):
+        return str(self.data)
+
+
+class DoublyLink:
+    """
+    双向链表的实现
+    """
+
+    def __init__(self):
+        self.tail = None
+        self.head = None
+        self.size = 0
+
+    def __str__(self):
+        str_text = ""
+        cur_node = self.head
+        while cur_node:
+            str_text += cur_node.data + " "
+            cur_node = cur_node.next
+        return str_text
+
+    def insert(self, data):
+        if isinstance(data, Node):
+            tmp_node = data
+        else:
+            tmp_node = Node(data)
+
+        if self.size == 0:
+            self.tail = tmp_node
+            self.head = self.tail
+
+        else:
+            self.head._pre = tmp_node
+            tmp_node._next = self.head
+            self.head = tmp_node
+
+        self.size += 1
+        return tmp_node
+
+    def remove(self, node):
+        if node == self.head:
+            self.head.next.pre = None
+            self.head = self.head.next
+
+        elif node == self.tail:
+            self.tail.pre.next = None
+            self.tail = self.tail.pre
+
+        else:
+            node.pre.next = node.next
+            node.next.pre = node.pre
+        self.size -= 1
+
+
+class LRUCache:
+    """
+    LRU cache 算法实现
+    插入数据时：若空间满了，则删除链表尾部元素，在进行插入
+    查询数据时：先把数据删除，再重新插入数据，保证了元素的顺序是按照访问顺序排列
+    """
+
+    def __init__(self, size):
+        self.size = size
+        self.hash_map = dict()
+        self.link = DoublyLink()
+
+    def set(self, key, value):
+
+        if self.size == self.link.size:
+            self.link.remove(self.link.tail)
+
+        if key in self.hash_map:
+            self.link.remove(self.hash_map.get(key))
+
+        tmp_node = self.link.insert(value)
+        self.hash_map[key] = tmp_node
+
+    def get(self, key):
+        tmp_node = self.hash_map.get(key)
+        self.link.remove(tmp_node)
+        self.link.insert(tmp_node)
+        return tmp_node.data
+
+
+from collections import OrderedDict
+
+
+class LRUCacheV2:
+    """
+    OrderedDict的本质就是一个有序的dict，其实现也是通过一个dict+双向链表
+    """
+
+    def __init__(self, size):
+        self.size = size
+        self.linked_map = OrderedDict()
+
+    def set(self, key, value):
+        if key in self.linked_map:
+            self.linked_map.pop(key)
+
+        if self.size == len(self.linked_map):
+            self.linked_map.popitem(last=False)
+        self.linked_map.update({key: value})
+
+    def get(self, key):
+
+        value = self.linked_map.get(key)
+        self.linked_map.pop(key)
+        self.linked_map.update({key: value})
+        return value
+
+
+import time
+from functools import wraps
+
+
+class Solution11:
+    """
+    重试装饰器的实现
+    """
+
+    @staticmethod
+    def retry(tries=4, delay=3):
+        def deco_retry(f):
+            @wraps(f)
+            def f_retry(*args, **kwargs):
+                m_tries, m_delay = tries, delay
+                while m_tries > 1:
+                    try:
+                        return f(*args, **kwargs)
+                    except Exception as _:
+                        time.sleep(m_delay)
+                        m_tries -= 1
+                return f(*args, **kwargs)
+
+            return f_retry  # true decorator
+
+        return deco_retry
+
+    @staticmethod
+    def log(func):
+        # 普通装饰器的写法
+        def wrapper(*args, **kw):
+            print('call %s():' % func.__name__)
+            return func(*args, **kw)
+
+        return wrapper
+
+
+class Solution12:
+    """
+    对链表进行插入排序
+    https://leetcode.cn/problems/insertion-sort-list/
+    给定单个链表的头 head ，使用 插入排序 对链表进行排序，并返回 排序后链表的头 。
+    """
+
+    @staticmethod
+    def insertion_sort_list(head: ListNode) -> ListNode:
+        if not head:
+            return head
+
+        dummy_head = ListNode(0)  # 创建哑节点 dummy_head
+        dummy_head.next = head  # 令 dummy_head.next = head。引入哑节点是为了便于在 head 节点之前插入节点
+        last_sorted = head  # 维护 last_sorted 为链表的已排序部分的最后一个节点，初始时 last_sorted = head。
+        curr = head.next  # 维护 curr 为待插入的元素，初始时 curr = head.next。
+
+        while curr:
+            if last_sorted.val <= curr.val:  # 比较 last_sorted 和 curr 的节点值
+                last_sorted = last_sorted.next  # 若 last_sorted.val <= curr.val，说明 curr 应该位于 last_sorted 之后，将 last_sorted 后移一位，curr 变成新的 last_sorted。
+            else:
+                prev = dummy_head  # 否则，从链表的头节点开始往后遍历链表中的节点，寻找插入 curr 的位置。令 prev 为插入 curr 的位置的前一个节点，进行如下操作，完成对 curr 的插入
+                while prev.next.val <= curr.val:
+                    prev = prev.next
+
+                last_sorted.next = curr.next
+                curr.next = prev.next
+                prev.next = curr
+            curr = last_sorted.next
+
+        return dummy_head.next
+
+
+class Solution13:
+    """
+    竖直打印单词
+    https://leetcode.cn/problems/print-words-vertically/
+    给你一个字符串 s。请你按照单词在 s 中的出现顺序将它们全部竖直返回。
+    单词应该以字符串列表的形式返回，必要时用空格补位，但输出尾部的空格需要删除（不允许尾随空格）。
+    每个单词只能放在一列上，每一列中也只能有一个单词。
+
+    输入：s = "TO BE OR NOT TO BE"
+    输出：["TBONTB","OEROOE","   T"]
+    解释：题目允许使用空格补位，但不允许输出末尾出现空格。
+    "TBONTB"
+    "OEROOE"
+    "   T"
+    """
+
+    @staticmethod
+    def print_vertically(s: str) -> List[str]:
+        words = s.split()
+        max_len = max(len(word) for word in words)
+        ans = list()
+        for i in range(max_len):
+            concat = "".join([word[i] if i < len(word) else " " for word in words])
+            ans.append(concat.rstrip())
+        return ans

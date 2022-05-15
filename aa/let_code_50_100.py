@@ -71,7 +71,7 @@ class Solution2:
 
     定义状态（定义子问题） dp[i]：表示以 nums[i] 结尾 的 连续 子数组的最大和
     根据状态的定义，由于 nums[i] 一定会被选取，并且以 nums[i] 结尾的连续子数组与以 nums[i - 1] 结尾的连续子数组只相差一个元素 nums[i] 。
-    假设数组 nums 的值全都严格大于 00，那么一定有 dp[i] = dp[i - 1] + nums[i]。
+    假设数组 nums 的值全都严格大于 0，那么一定有 dp[i] = dp[i - 1] + nums[i]。
     可是 dp[i - 1] 有可能是负数，于是分类讨论：
     如果 dp[i - 1] > 0，那么可以把 nums[i] 直接接在 dp[i - 1] 表示的那个数组的后面，得到和更大的连续子数组；
     如果 dp[i - 1] <= 0，那么 nums[i] 加上前面的数 dp[i - 1] 以后值不会变大。于是 dp[i] 「另起炉灶」，此时单独的一个 nums[i] 的值，就是 dp[i]。
@@ -160,6 +160,11 @@ class Solution4:
 
 
 class Solution5:
+    """
+    https://leetcode-cn.com/problems/spiral-matrix-ii/
+    螺旋矩阵 II
+    给你一个正整数 n ，生成一个包含 1 到 n的平方的所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+    """
     @staticmethod
     def generate_matrix(n: int) -> List[List[int]]:
         dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -244,18 +249,19 @@ class Solution8:
     一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ）。
     机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。
     问总共有多少条不同的路径？
-    我们用 f(i, j)f(i,j) 表示从左上角走到 (i, j)(i,j) 的路径数量，其中 ii 和 jj 的范围分别是 [0, m)[0,m) 和 [0, n)[0,n)。
-    由于我们每一步只能从向下或者向右移动一步，因此要想走到 (i, j)(i,j)，如果向下走一步，那么会从 (i-1, j)(i−1,j) 走过来；
-    如果向右走一步，那么会从 (i, j-1)(i,j−1) 走过来。
+
+    我们用 f(i,j) 表示从左上角走到 (i,j) 的路径数量，其中 i 和 j 的范围分别是 [0,m) 和 [0,n)。
+    由于我们每一步只能从向下或者向右移动一步，因此要想走到 (i,j)，如果向下走一步，那么会从 (i−1,j) 走过来；
+    如果向右走一步，那么会从 (i,j−1) 走过来。
     """
 
     @staticmethod
     def unique_paths(m: int, n: int) -> int:
-        f = [[1] * n] + [[1] + [0] * (n - 1) for _ in range(m - 1)]  # 第一行和第一例默认为1
+        dp = [[1] * n] + [[1] + [0] * (n - 1) for _ in range(m - 1)]  # 第一行和第一例默认为1
         for i in range(1, m):
             for j in range(1, n):
-                f[i][j] = f[i - 1][j] + f[i][j - 1]
-        return f[m - 1][n - 1]
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+        return dp[m - 1][n - 1]
 
 
 class Solution9:
@@ -271,6 +277,28 @@ class Solution9:
 
     @staticmethod
     def unique_paths_with_obstacles(obstacle_grid: List[List[int]]) -> int:
+        m, n = len(obstacle_grid), len(obstacle_grid[0])
+        dp = [[0] * n for _ in range(m)]
+        for i in range(n):
+            if obstacle_grid[0][i] == 1:
+                break
+            dp[0][i] = 1
+
+        for j in range(m):
+            if obstacle_grid[j][0] == 1:
+                break
+            dp[j][0] = 1
+
+        for i in range(1, m):
+            for j in range(1, n):
+                if obstacle_grid[i][j] == 1:
+                    dp[i][j] = 0
+                else:
+                    dp[i][j] = dp[i][j - 1] + dp[i - 1][j]
+        return dp[m - 1][n - 1]
+
+    @staticmethod
+    def unique_paths_with_obstacles_v2(obstacle_grid: List[List[int]]) -> int:
         m, n = len(obstacle_grid), len(obstacle_grid[0])
         mem = [1] + [0] * (n - 1)
         for i in range(m):
@@ -288,7 +316,9 @@ class Solution10:
     https://leetcode-cn.com/problems/minimum-path-sum/
     给定一个包含非负整数的 m x n 网格 grid ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
     由于路径的方向只能是向下或向右，因此网格的第一行的每个元素只能从左上角元素开始向右移动到达，网格的第一列的每个元素只能从左上角元素开始向下移动到达，此时的路径是唯一的，因此每个元素对应的最小路径和即为对应的路径上的数字总和。
-    对于不在第一行和第一列的元素，可以从其上方相邻元素向下移动一步到达，或者从其左方相邻元素向右移动一步到达，元素对应的最小路径和等于其上方相邻元素与其左方相邻元素两者对应的最小路径和中的最小值加上当前元素的值。由于每个元素对应的最小路径和与其相邻元素对应的最小路径和有关，因此可以使用动态规划求解。
+    对于不在第一行和第一列的元素，可以从其上方相邻元素向下移动一步到达，或者从其左方相邻元素向右移动一步到达，
+    元素对应的最小路径和等于其上方相邻元素与其左方相邻元素两者对应的最小路径和中的最小值加上当前元素的值。
+    由于每个元素对应的最小路径和与其相邻元素对应的最小路径和有关，因此可以使用动态规划求解。
     """
 
     @staticmethod
@@ -576,29 +606,38 @@ class Solution17:
 
     用i,j表示滑动窗口的左边界和右边界，通过改变i,j来扩展和收缩滑动窗口，可以想象成一个窗口在字符串上游走，当这个窗口包含的元素满足条件，
     即包含字符串T的所有元素，记录下这个滑动窗口的长度j-i+1，这些长度中的最小值就是要求的结果。
+    一，不断增加j使滑动窗口增大，直到窗口包含了T的所有元素
+    二，不断增加i使滑动窗口缩小，因为是要求最小字串，所以将不必要的元素排除在外，使长度减小，直到碰到一个必须包含的元素，这个时候不能再扔了，再扔就不满足条件了，记录此时滑动窗口的长度，并保存最小值
+    三，让i再增加一个位置，这个时候滑动窗口肯定不满足条件了，那么继续从步骤一开始执行，寻找新的满足条件的滑动窗口，如此反复，直到j超出了字符串S范围。
     """
 
     @staticmethod
     def min_window(s: str, t: str) -> str:
-        need_dict = collections.defaultdict(int)  # 用来装分别需要的字符数量，包括必要的和非必要的，需要的必要字符数量>0，非必要的字符数量<0
-        for ch in t:  # 初始化需要的必要字符数量
-            need_dict[ch] += 1
-        need_cnt = len(t)  # 用来判断总共需要多少字符才能达到要求
-        i = j = 0
-        res = [0, float('inf')]
-        for j in range(len(s)):
-            if need_dict[s[j]] > 0:  # 只有必要字符的数量才可能>0
+        need = collections.defaultdict(int)  # 用一个字典need来表示当前滑动窗口中需要的各元素的数量，
+        for c in t:
+            need[c] += 1   # 一开始滑动窗口为空，用T中各元素来初始化这个need
+        need_cnt = len(t)  # 维护一个额外的变量need_cnt来记录所需元素的总数量，
+        i = 0
+        res = (0, float('inf'))
+        for j, c in enumerate(s):
+            if need[c] > 0:  # 当我们碰到一个所需元素c，不仅need[c]的数量减少1，同时need_cnt也要减少1，这样我们通过need_cnt就可以知道是否满足条件
                 need_cnt -= 1
-            need_dict[s[j]] -= 1  # 任意值都可以装进need_dict，但是非必要字符只可能<0
-            if need_cnt == 0:  # 需要的字符都足够了
-                while need_cnt == 0:  # 开始准备右移左指针，缩短距离
-                    if j - i < res[1] - res[0]:  # 字符串更短，替换答案
-                        res = [i, j]
-                    need_dict[s[i]] += 1  # 在移动左指针之前先将左指针的值加回来，这里可以是非必要字符
-                    if s[i] in t and need_dict[s[i]] > 0:  # 确认是必要字符且不多于所需要的数量（有多余的话只可能<=0，因为上一句我们已经将字符+1了）后，将need_cnt+1
-                        need_cnt += 1
-                    i += 1  # 右移左指针，寻找下一个符合的子串
-        return s[res[0]:res[1] + 1] if res[1] - res[0] < len(s) else ''
+            need[c] -= 1    # 如果 c 不在 t 中，那么 need[c] 会小于 0
+            if need_cnt == 0:  # 步骤一：滑动窗口包含了所有T元素
+                while True:  # 步骤二：增加i，排除多余元素
+                    c = s[i]
+                    if need[c] == 0: # 碰到一个必须包含的元素
+                        break
+                    need[c] += 1 # 扔掉了一个，所有这里要 need[c] 要加1
+                    i += 1
+                if j - i < res[1] - res[0]:  # 记录结果
+                    res = (i, j)
+                need[s[i]] += 1  # 步骤三：i增加一个位置，寻找新的满足条件滑动窗口
+                need_cnt += 1
+                i += 1
+        return '' if res[1] > len(s) else s[res[0]:res[1] + 1]  # 如果res始终没被更新过，代表无满足条件的结果
+
+
 
 
 class Solution18:
@@ -711,6 +750,7 @@ class Solution21:
     https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/
     给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使每个元素 最多出现两次 ，返回删除后数组的新长度。
     不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+    nums = [1,1,1,2,2,3]
     """
 
     @staticmethod
@@ -897,7 +937,8 @@ class Solution25:
         return ans
 
     def max_rectangle(self, matrix: List[List[str]]) -> int:
-        if not matrix: return 0
+        if not matrix:
+            return 0
         m, n = len(matrix), len(matrix[0])
         # 记录当前位置上方连续“1”的个数
         pre = [0] * (n + 1)
@@ -1055,10 +1096,10 @@ class Solution31:
         n = len(s)
         f = [1] + [0] * n
         for i in range(1, n + 1):
-            if s[i - 1] != '0':
+            if s[i - 1] != '0':  # 使用了1 个字符，即 s[i] 进行解码，只要 s[i-1] ！=0 它就可以被解码成 A∼I 中的某个字母
                 f[i] = f[i - 1]
             if i > 1 and s[i - 2] != '0' and int(s[i - 2:i]) <= 26:
-                f[i] += f[i - 2]
+                f[i] += f[i - 2] # 使用了2个字符
         return f[n]
 
 
@@ -1110,11 +1151,12 @@ class Solution33:
     @staticmethod
     def restore_ip_addresses(s: str) -> list:
         """
-            一共四位，每一位都可以取 0 - 255之间这些数字，也就是，每一位都可以取 1 - 3位，也就是每一位都有三种取法。
-            抽象出来就是四层，三叉树。
-            从中去掉不符合规则的就可以了。
+        一共四位，每一位都可以取 0 - 255之间这些数字，也就是，每一位都可以取 1 - 3位，也就是每一位都有三种取法。
+        抽象出来就是四层，三叉树。
+        从中去掉不符合规则的就可以了。
         """
-        if len(s) < 4: return []
+        if len(s) < 4:
+            return []
 
         rst = []
 
@@ -1203,9 +1245,10 @@ class Solution35:
 
     @staticmethod
     def generate_trees(n: int) -> List[TreeNode]:
-        if n == 0: return []
+        if n == 0:
+            return []
 
-        @functools.lru_cache(None)
+        @functools.lru_cache()
         def helper(start, end):
             res = []
             if start > end:
@@ -1243,8 +1286,7 @@ class Solution36:
         dp[0] = 1
         for i in range(1, n + 1):
             for j in range(0, i):
-                dp[i] += dp[j] * dp[
-                    i - j - 1]  # dp[5] = dp[0]*dp[4] + dp[1]*dp[3] + dp[2]*dp[2] + dp[3]*dp[1] + dp[4]*dp[0]
+                dp[i] += dp[j] * dp[i - j - 1]  # dp[5] = dp[0]*dp[4] + dp[1]*dp[3] + dp[2]*dp[2] + dp[3]*dp[1] + dp[4]*dp[0]
         return dp[n]
 
     @functools.lru_cache(None)
@@ -1280,15 +1322,17 @@ class Solution37:
         dp[0][0] = True
 
         for i in range(1, len1 + 1):
-            dp[i][0] = (dp[i - 1][0] and s1[i - 1] == s3[i - 1])
+            dp[i][0] = (dp[i - 1][0] and s1[i - 1] == s3[i - 1]) # 表示 s1 的前 i 位是否能构成 s3 的前 i 位。因此需要满足的条件为，
+                                                                 # 前 i−1 位可以构成 s3 的前 i−1 位且 s1 的第 i 位（s1[i−1]）等于 s3 的第 i 位（s3[i−1]）
 
-        for i in range(1, len2 + 1):
-            dp[0][i] = (dp[0][i - 1] and s2[i - 1] == s3[i - 1])
+
+        for j in range(1, len2 + 1):
+            dp[0][j] = (dp[0][j - 1] and s2[j - 1] == s3[j - 1])  # 表示 s2 的前 i 位是否能构成 s3 的前 i 位。因此需要满足的条件为
+                                                                  # 前 i−1 位可以构成 s3 的前 i−1 位且 s2 的第 i 位（s1[i−1]）等于 s3 的第 i 位（s3[i−1]）
 
         for i in range(1, len1 + 1):
-            for j in range(1, len2 + 1):
-                dp[i][j] = (dp[i][j - 1] and s2[j - 1] == s3[i + j - 1]) or (
-                    dp[i - 1][j] and s1[i - 1] == s3[i + j - 1])
+            for j in range(1, len2 + 1):  # s1 的前 i 个字符和 s2 的前 j−1 个字符能否构成 s3 的前 i+j−1 位，且 s2 的第 j 位（s2[j−1]）是否等于 s3 的第 i+j 位（s3[i+j−1]）。
+                dp[i][j] = (dp[i][j - 1] and s2[j - 1] == s3[i + j - 1]) or (dp[i - 1][j] and s1[i - 1] == s3[i + j - 1])
         return dp[-1][-1]
 
 
@@ -1332,6 +1376,23 @@ class Solution38:
                 return False
             pre_order = root.val
             root = root.right
+        return True
+
+    @staticmethod
+    def is_valid_bst_v3(root: TreeNode) -> bool:
+        res = []
+
+        def dfs(root):
+            if not root:
+                return
+            dfs(root.left)
+            res.append(root.val)
+            dfs(root.right)
+
+        dfs(root)
+        for i in range(1, len(res)):
+            if res[i - 1] >= res[i]:
+                return False
         return True
 
 
@@ -1526,33 +1587,29 @@ class Solution45:
 
     @staticmethod
     def build_tree(pre_order: List[int], in_order: List[int]) -> TreeNode:
-        def __build_tree(pre_order_left: int, pre_order_right: int, in_order_left: int, in_order_right: int):
-            if pre_order_left > pre_order_right:
+        def helper(in_left, in_right):
+            # 如果这里没有节点构造二叉树了，就结束
+            if in_left > in_right:
                 return None
 
-            # 前序遍历中的第一个节点就是根节点
-            pre_order_root = pre_order_left
-            # 在中序遍历中定位根节点
-            in_order_root = index[in_order[pre_order_root]]
+            # 选择 post_idx 位置的元素作为当前子树根节点
+            val = pre_order.pop(0)
+            root = TreeNode(val)
 
-            # 先把根节点建立出来
-            root = TreeNode(in_order[pre_order_root])
-            # 得到左子树中的节点数目
-            size_left_subtree = in_order_root - in_order_left
-            # 递归地构造左子树，并连接到根节点
-            # 先序遍历中「从 左边界+1 开始的 size_left_subtree」个元素就对应了中序遍历中「从 左边界 开始到 根节点定位-1」的元素
-            root.left = __build_tree(pre_order_left + 1, pre_order_left + size_left_subtree, in_order_left,
-                                     in_order_root - 1)
-            # 递归地构造右子树，并连接到根节点
-            # 先序遍历中「从 左边界+1+左子树节点数目 开始到 右边界」的元素就对应了中序遍历中「从 根节点定位+1 到 右边界」的元素
-            root.right = __build_tree(pre_order_left + size_left_subtree + 1, pre_order_right, in_order_root + 1,
-                                      in_order_right)
+            # 根据 root 所在位置分成左右两棵子树
+            index = idx_map[val]
+
+            # 构造左子树
+            root.left = helper(in_left, index - 1)
+
+            # 构造右子树
+            root.right = helper(index + 1, in_right)
+
             return root
 
-        n = len(pre_order)
-        # 构造哈希映射，帮助我们快速定位根节点
-        index = {element: i for i, element in enumerate(in_order)}
-        return __build_tree(0, n - 1, 0, n - 1)
+        # 建立（元素，下标）键值对的哈希表
+        idx_map = {val: idx for idx, val in enumerate(in_order)}
+        return helper(0, len(in_order) - 1)
 
 
 class Solution46:
@@ -1576,10 +1633,12 @@ class Solution46:
             # 根据 root 所在位置分成左右两棵子树
             index = idx_map[val]
 
-            # 构造右子树
-            root.right = helper(index + 1, in_right)
             # 构造左子树
             root.left = helper(in_left, index - 1)
+
+            # 构造右子树
+            root.right = helper(index + 1, in_right)
+
             return root
 
         # 建立（元素，下标）键值对的哈希表
@@ -1701,8 +1760,7 @@ class Solution50:
 
         if not root:
             return True
-        return abs(height(root.left) - height(root.right)) <= 1 and self.is_balanced(root.left) and self.is_balanced(
-            root.right)
+        return abs(height(root.left) - height(root.right)) <= 1 and self.is_balanced(root.left) and self.is_balanced(root.right)
 
     @staticmethod
     def is_balanced_v2(root: TreeNode) -> bool:
@@ -1717,5 +1775,3 @@ class Solution50:
                 return max(left_height, right_height) + 1
 
         return height(root) >= 0
-
-

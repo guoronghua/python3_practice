@@ -289,7 +289,7 @@ def fun_14():
     dp = [0] * (n + 1)  # 初始化 dp 数组
 
     for i, v in prices.items():  # 遍历每一个物品价格
-        p1, p2, p3 = v
+        p1, p2, p3 = v          # 价值
         v1, v2, v3 = values[i]  # 满意度
         for j in range(n, p1 - 1, -1):  # 价格从n到当前主物的价格v[0]遍历
             # 处理主从组合的四种情况
@@ -464,6 +464,7 @@ def fun_17():
                 d = 1
         if a + b + c + d < 3:
             return 0
+
         # or repeat_sub = re.findall(r'(.{3,}).*\1', line) \1表示与()里的内容重复
         for i in range(len(s) - 3):
             if len(s.split(s[i:i + 3])) >= 3:
@@ -802,6 +803,7 @@ def fun_26():
             a = int(input())
             count = 1
             result = [[None] * a for _ in range(a)]
+
             for x in range(a):
                 for y in range(x + 1):
                     temp = count
@@ -810,6 +812,7 @@ def fun_26():
                     else:
                         result[y][x - y] = temp
                     count += 1
+
             for y in range(a):
                 line_str = ""
                 for x in result:
@@ -914,7 +917,6 @@ def fun_29():
                     test1 = set(w + item for w in group)
                     res = res.union(test1)
             print(len(res))
-
         except:
             break
 
@@ -1968,20 +1970,19 @@ def fun_52():
         try:
             n = int(input())
             trains = input().strip().split(' ')
-
             res = []
 
-            def rec_trains(cur_idx, in_trains, out_trains):
+            def dfs(index, in_trains, out_trains):
                 if trains[-1] in in_trains:
                     res.append(' '.join(out_trains + in_trains[::-1]))  # 最后一辆火车已经进站，直接输出
                     return
                 elif not in_trains:
-                    rec_trains(cur_idx + 1, in_trains + [trains[cur_idx]], out_trains)  # 还有没有已经进站的火车，只能进站
+                    dfs(index + 1, in_trains + [trains[index]], out_trains)  # 还有没有已经进站的火车，只能进站
                 else:
-                    rec_trains(cur_idx, in_trains[:-1], out_trains + [in_trains[-1]])  # 当前的火车出站
-                    rec_trains(cur_idx + 1, in_trains + [trains[cur_idx]], out_trains)  # 当前的火车进站
+                    dfs(index, in_trains[:-1], out_trains + [in_trains[-1]])  # 当前的火车出站
+                    dfs(index + 1, in_trains + [trains[index]], out_trains)  # 当前的火车进站
 
-            rec_trains(0, [], [])
+            dfs(0, [], [])
             res.sort()
             print('\n'.join(res))
         except:
@@ -2165,14 +2166,13 @@ def fun_59():
     输入int型数组，询问该数组能否分成两组，使得两组中各元素加起来的和相等，并且，所有5的倍数必须在其中一个组中，所有3的倍数在另一个组中（不包括5的倍数），不是5的倍数也不是3的倍数能放在任意一组，可以将数组分为空数组，能满足以上条件，输出true；不满足时输出false。
     """
 
-    def fun(sum3, sum5, other):
-
+    def dfs(sum3, sum5, other):
         if sum3 == sum5 and len(other) == 0:
             return True
         elif len(other) == 0:
             return False
         else:
-            return fun(sum3 + other[0], sum5, other[1:]) or fun(sum3, sum5 + other[0], other[1:])
+            return dfs(sum3 + other[0], sum5, other[1:]) or dfs(sum3, sum5 + other[0], other[1:])
 
     while True:
 
@@ -2191,7 +2191,7 @@ def fun_59():
                 other.append(i)
             sum3 = sum(list3)
             sum5 = sum(list5)
-            if fun(sum3, sum5, other):
+            if dfs(sum3, sum5, other):
                 print('true')
             else:
                 print('false')
@@ -2221,12 +2221,14 @@ def fun_60():
             y = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]
             z = ["元", "拾", "佰", "仟", "万", "拾", "佰", "仟", "亿", "拾", "佰", "仟", "万亿", "拾", "佰", "仟"]
             t = ["角", "分"]
+
             result_b = ''
             for i in range(len(m)):
                 if m[i] == '0':
                     continue
                 b = y[int(m[i])] + t[i]
                 result_b += b
+
             result_a = '人民币'
             for i in range(len(n)):
                 if n[i] == '0':
