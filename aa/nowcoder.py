@@ -1789,10 +1789,12 @@ def fun_45():
             z = int(input())
             A = []
             B = []
+
             for i in range(x):
                 temp = input().split()
                 temp = list(map(int, temp))
                 A.append(temp)
+
             for j in range(y):
                 temp = input().split()
                 temp = list(map(int, temp))

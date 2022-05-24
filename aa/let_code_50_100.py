@@ -1004,7 +1004,7 @@ class Solution27:
         for i in range(1, n):
             if self.is_scramble(s1[:i], s2[:i]) and self.is_scramble(s1[i:], s2[i:]):
                 return True
-            elif self.is_scramble(s1[:i], s2[-i:]) and self.is_scramble(s1[i:], s2[:-i]):
+            elif self.is_scramble(s1[i:], s2[:-i]) and self.is_scramble(s1[:i], s2[-i:]):
                 return True
         return False
 

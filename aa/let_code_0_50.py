@@ -22,7 +22,6 @@ class Solution1:
 
     输入：nums = [3,3], target = 6
     输出：[0,1]
-
     """
 
     @staticmethod
@@ -1045,6 +1044,7 @@ class Solution24:
             temp.next = node2
             node1.next = node2.next
             node2.next = node1
+
             temp = node1
         return dummy_head.next
 

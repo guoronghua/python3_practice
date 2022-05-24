@@ -206,7 +206,7 @@ class Find(object):
         return -1
 
     def b_recursion_search(self, a_list, target, low, high):
-        """二分查找算法 非递归实现"""
+        """二分查找算法 递归实现"""
         if low > high:
             return -1
         mid = low + (high - low) // 2
@@ -381,6 +381,7 @@ class SingleLinkList(object):
             tmp = cur.next
             cur.next = pre
             pre = cur
+
             self._head = cur
             cur = tmp
 
@@ -1314,7 +1315,7 @@ class Dijkstra:
         self.graph = {}  # 记录地图指向关系，和相应的权重
         self.costs = {}  # 记录从起点到每个点的距离
         self.parents = {}  # 记录每个点的父节点
-        self.processed = []  # 记录以及处理里的节点
+        self.processed = []  # 记录已经处理里的节点
 
     def add_edge(self, s, t, w):  # s 先于 t, 边 s -> t
         if not self.graph.get(s):

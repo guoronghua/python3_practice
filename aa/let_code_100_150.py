@@ -386,7 +386,7 @@ class Solution10:
         n = len(temp)
         ans = [0] * n
         for i in range(n):
-            while len(st) != 0 and temp[st[- 1]] < temp[i]:
+            while len(st) != 0 and temp[st[-1]] < temp[i]:
                 ans[st[- 1]] = temp[i]
                 st.pop()
             st.append(i)
@@ -505,7 +505,6 @@ class LRUCacheV2:
         self.linked_map.update({key: value})
 
     def get(self, key):
-
         value = self.linked_map.get(key)
         self.linked_map.pop(key)
         self.linked_map.update({key: value})
@@ -523,7 +522,7 @@ class Solution11:
 
     @staticmethod
     def retry(tries=4, delay=3):
-        def deco_retry(f):
+        def wrapper(f):
             @wraps(f)
             def f_retry(*args, **kwargs):
                 m_tries, m_delay = tries, delay
@@ -537,7 +536,7 @@ class Solution11:
 
             return f_retry  # true decorator
 
-        return deco_retry
+        return wrapper
 
     @staticmethod
     def log(func):
