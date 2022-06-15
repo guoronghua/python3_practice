@@ -5,6 +5,10 @@ import functools
 import collections
 from collections import Counter
 from typing import List, Optional
+from collections import defaultdict
+from typing import List
+from collections import deque
+import string
 
 
 class TreeNode:
@@ -196,7 +200,7 @@ class Solution5:
 
     @staticmethod
     def num_distinct(s: str, t: str) -> int:
-        @functools.lru_cache # Python functools 记忆化模块，等价于哈希表记录的功能
+        @functools.lru_cache  # Python functools 记忆化模块，等价于哈希表记录的功能
         def dfs(i, j):
 
             if j == len(t):  # t匹配完了
@@ -220,16 +224,19 @@ class Solution5:
         if m < n:
             return 0
 
-        dp = [[0] * (n + 1) for _ in range(m + 1)]  # 创建二维数组 dp[i][j] 表示在 s[i:] 的子序列中 t[j:] 出现的个数。s[i:] 表示 s 从下标 i 到末尾的子字符串，t[j:] 表示 t 从下标 j 到末尾的子字符串
+        dp = [[0] * (n + 1) for _ in range(
+            m + 1)]  # 创建二维数组 dp[i][j] 表示在 s[i:] 的子序列中 t[j:] 出现的个数。s[i:] 表示 s 从下标 i 到末尾的子字符串，t[j:] 表示 t 从下标 j 到末尾的子字符串
         for i in range(m + 1):  # 当 j=n 时, t[j:] 为空字符串，由于空字符串是任何字符串的子序列，因此对任意 0≤ i ≤m，有 dp[i][n]=1
             dp[i][n] = 1
 
         for i in range(m - 1, -1, -1):
             for j in range(n - 1, -1, -1):
                 if s[i] == t[j]:  # 当 s[i]=t[j] 时，如果 s[i] 和 t[j] 匹配，则考虑 t[j+1:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j+1]，
-                    dp[i][j] = dp[i + 1][j + 1] + dp[i + 1][j]  # 如果 s[i] 不和 t[j] 匹配，则考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
+                    dp[i][j] = dp[i + 1][j + 1] + dp[i + 1][
+                        j]  # 如果 s[i] 不和 t[j] 匹配，则考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
                 else:
-                    dp[i][j] = dp[i + 1][j]  # 当 s[i]!=t[j] 时，s[i] 不能和 t[j] 匹配，因此只考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
+                    dp[i][j] = dp[i + 1][
+                        j]  # 当 s[i]!=t[j] 时，s[i] 不能和 t[j] 匹配，因此只考虑 t[j:] 作为 s[i+1:] 的子序列，子序列数为 dp[i+1][j]。
 
         return dp[0][0]
 
@@ -606,3 +613,551 @@ class Solution13:
             concat = "".join([word[i] if i < len(word) else " " for word in words])
             ans.append(concat.rstrip())
         return ans
+
+
+class Solution14:
+    """
+    买卖股票的最佳时机
+    https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/
+    给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
+    你只能选择 某一天 买入这只股票，并选择在 未来的某一个不同的日子 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+    返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 0 。
+
+    输入：[7,1,5,3,6,4]
+    输出：5
+    解释：在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+
+    """
+
+    @staticmethod
+    def max_profit(prices: List[int]) -> int:
+        inf = int(1e9)
+        min_price = inf
+        max_profit = 0
+        for price in prices:
+            max_profit = max(price - min_price, max_profit)
+            min_price = min(min_price, price)
+        return max_profit
+
+
+class Solution15:
+    """
+    买卖股票的最佳时机 II
+    https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/
+    给你一个整数数组 prices ，其中 prices[i] 表示某支股票第 i 天的价格。
+    在每一天，你可以决定是否购买和/或出售股票。你在任何时候 最多 只能持有 一股 股票。你也可以先购买，然后在 同一天 出售。
+    返回 你能获得的 最大 利润 。
+
+
+    输入：prices = [7,1,5,3,6,4]
+    输出：7
+    解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4 。
+    随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3 。
+    总利润为 4 + 3 = 7 。
+    """
+
+    @staticmethod
+    def max_profit(prices: List[int]) -> int:
+        inf = int(1e9)
+        min_price = inf
+        max_profit = 0
+        for price in prices:
+            max_profit = max(price - min_price, max_profit)
+            min_price = min(min_price, price)
+        return max_profit
+
+
+class Solution16:
+    """
+    买卖股票的最佳时机 III
+    https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/
+    给定一个数组，它的第 i 个元素是一支给定的股票在第 i 天的价格。
+
+    设计一个算法来计算你所能获取的最大利润。你最多可以完成 两笔 交易。
+    注意：你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+    输入：prices = [3,3,5,0,0,3,1,4]
+    输出：6
+    解释：在第 4 天（股票价格 = 0）的时候买入，在第 6 天（股票价格 = 3）的时候卖出，这笔交易所能获得利润 = 3-0 = 3 。
+         随后，在第 7 天（股票价格 = 1）的时候买入，在第 8 天 （股票价格 = 4）的时候卖出，这笔交易所能获得利润 = 4-1 = 3 。
+    """
+
+    @staticmethod
+    def max_profit(prices: List[int]) -> int:
+        # buy1 只进行过一次买操作；
+        # sell1 进行了一次买操作和一次卖操作，即完成了一笔交易；
+        # buy2 在完成了一笔交易的前提下，进行了第二次买操作；
+        # sell2 完成了全部两笔交易。
+        n = len(prices)
+        buy1 = buy2 = -prices[0]
+        sell1 = sell2 = 0
+        for i in range(1, n):
+            buy1 = max(buy1, -prices[i])
+            sell1 = max(sell1, buy1 + prices[i])
+            buy2 = max(buy2, sell1 - prices[i])
+            sell2 = max(sell2, buy2 + prices[i])
+        return sell2
+
+
+class Solution17:
+    """
+     二叉树中的最大路径和
+    https://leetcode.cn/problems/binary-tree-maximum-path-sum/
+    路径 被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
+    路径和 是路径中各节点值的总和。
+    给你一个二叉树的根节点 root ，返回其 最大路径和 。
+    """
+
+    def __init__(self):
+        self.max_sum = float("-inf")
+
+    def max_path_sum(self, root: TreeNode):
+        def max_gain(node):
+            if not node:
+                return 0
+
+            # 递归计算左右子节点的最大贡献值
+            # 只有在最大贡献值大于 0 时，才会选取对应子节点
+            left_gain = max(max_gain(node.left), 0)
+            right_gain = max(max_gain(node.right), 0)
+
+            # 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
+            price_new_path = node.val + left_gain + right_gain
+
+            # 更新答案
+            self.max_sum = max(self.max_sum, price_new_path)
+
+            # 返回节点的最大贡献值
+            return node.val + max(left_gain, right_gain)
+
+        max_gain(root)
+        return self.max_sum
+
+
+class Solution18:
+    """
+    单词接龙 II
+    https://leetcode.cn/problems/word-ladder-ii/
+    按字典 wordList 完成从单词 beginWord 到单词 endWord 转化，一个表示此过程的 转换序列 是形式上像 beginWord -> s1 -> s2 -> ... -> sk 这样的单词序列，并满足：
+
+    每对相邻的单词之间仅有单个字母不同。
+    转换过程中的每个单词 si（1 <= i <= k）必须是字典 wordList 中的单词。注意，beginWord 不必是字典 wordList 中的单词。
+    sk == endWord
+    给你两个单词 beginWord 和 endWord ，以及一个字典 wordList 。请你找出并返回所有从 beginWord 到 endWord 的 最短转换序列 ，如果不存在这样的转换序列，返回一个空列表。每个序列都应该以单词列表 [beginWord, s1, s2, ..., sk] 的形式返回。
+    """
+
+    def find_ladders(self, begin_word: str, end_word: str, word_list: List[str]) -> List[List[str]]:
+        # 先将 word_list 放到哈希表里，便于判断某个单词是否在 word_list 里
+        word_set = set(word_list)
+        res = []
+        if len(word_set) == 0 or end_word not in word_set:
+            return res
+
+        successors = defaultdict(set)
+        # 第 1 步：使用广度优先遍历得到后继结点列表 successors
+        # key：字符串，value：广度优先遍历过程中 key 的后继结点列表
+
+        found = self.__bfs(begin_word, end_word, word_set, successors)
+        if not found:
+            return res
+        # 第 2 步：基于后继结点列表 successors ，使用回溯算法得到所有最短路径列表
+        path = [begin_word]
+        self.__dfs(begin_word, end_word, successors, path, res)
+        return res
+
+    @staticmethod
+    def __bfs(begin_word, end_word, word_set, successors):
+        queue = deque()
+        queue.append(begin_word)
+
+        visited = set()
+        visited.add(begin_word)
+
+        found = False
+        word_len = len(begin_word)
+        next_level_visited = set()
+
+        while queue:
+            current_size = len(queue)
+            for i in range(current_size):
+                current_word = queue.popleft()
+                word_list = list(current_word)
+
+                for j in range(word_len):
+                    origin_char = word_list[j]
+
+                    for k in string.ascii_lowercase:
+                        word_list[j] = k
+                        next_word = ''.join(word_list)
+
+                        if next_word in word_set:
+                            if next_word not in visited:
+                                if next_word == end_word:
+                                    found = True
+
+                                # 避免下层元素重复加入队列
+                                if next_word not in next_level_visited:
+                                    next_level_visited.add(next_word)
+                                    queue.append(next_word)
+
+                                successors[current_word].add(next_word)
+                    word_list[j] = origin_char
+            if found:
+                break
+            # 取两集合全部的元素（并集，等价于将 next_level_visited 里的所有元素添加到 visited 里）
+            visited |= next_level_visited
+            next_level_visited.clear()
+        return found
+
+    def __dfs(self, begin_word, end_word, successors, path, res):
+        if begin_word == end_word:
+            res.append(path[:])
+            return
+
+        if begin_word not in successors:
+            return
+
+        successor_words = successors[begin_word]
+        for next_word in successor_words:
+            path.append(next_word)
+            self.__dfs(next_word, end_word, successors, path, res)
+            path.pop()
+
+
+class Solution19:
+    """
+    单词接龙
+    https://leetcode.cn/problems/word-ladder/
+    字典 wordList 中从单词 beginWord 和 endWord 的 转换序列 是一个按下述规格形成的序列 beginWord -> s1 -> s2 -> ... -> sk：
+
+    每一对相邻的单词只差一个字母。
+     对于 1 <= i <= k 时，每个 si 都在 wordList 中。注意， beginWord 不需要在 wordList 中。
+    sk == endWord
+    给你两个单词 beginWord 和 endWord 和一个字典 wordList ，返回 从 beginWord 到 endWord 的 最短转换序列 中的 单词数目 。如果不存在这样的转换序列，返回 0 。
+
+    输入：beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+    输出：5
+    解释：一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog", 返回它的长度 5。
+    """
+
+    @staticmethod
+    def ladder_length(begin_word: str, end_word: str, word_list: List[str]) -> int:
+        word_set = set(word_list)
+        if len(word_set) == 0 or end_word not in word_set:
+            return 0
+
+        if begin_word in word_set:
+            word_set.remove(begin_word)
+
+        queue = deque()
+        queue.append(begin_word)
+
+        visited = set(begin_word)
+
+        word_len = len(begin_word)
+        step = 1
+        while queue:
+            current_size = len(queue)
+            for i in range(current_size):
+                word = queue.popleft()
+
+                word_list = list(word)
+                for j in range(word_len):
+                    origin_char = word_list[j]
+
+                    for k in range(26):
+                        word_list[j] = chr(ord('a') + k)
+                        next_word = ''.join(word_list)
+                        if next_word in word_set:
+                            if next_word == end_word:
+                                return step + 1
+                            if next_word not in visited:
+                                queue.append(next_word)
+                                visited.add(next_word)
+                    word_list[j] = origin_char
+            step += 1
+        return 0
+
+    # 双向广度优先遍历
+    # 已知目标顶点的情况下，可以分别从起点和目标顶点（终点）执行广度优先遍历，直到遍历的部分有交集。这种方式搜索的单词数量会更小一些；
+    # 更合理的做法是，每次从单词数量小的集合开始扩散；这里 beginVisited 和 endVisited 交替使用，等价于单向 BFS 里使用队列，
+    # 每次扩散都要加到总的 visited 里。
+    @staticmethod
+    def ladder_length_v2(begin_word: str, end_word: str, word_list: List[str]) -> int:
+        word_set = set(word_list)
+        if len(word_set) == 0 or end_word not in word_set:
+            return 0
+
+        if begin_word in word_set:
+            word_set.remove(begin_word)
+
+        visited = set()
+        visited.add(begin_word)
+        visited.add(end_word)
+
+        begin_visited = set()
+        begin_visited.add(begin_word)
+
+        end_visited = set()
+        end_visited.add(end_word)
+
+        word_len = len(begin_word)
+        step = 1
+        # 简化成 while begin_visited 亦可
+        while begin_visited and end_visited:
+            # 打开帮助调试
+            # print(begin_visited)
+            # print(end_visited)
+
+            if len(begin_visited) > len(end_visited):
+                begin_visited, end_visited = end_visited, begin_visited
+
+            next_level_visited = set()
+            for word in begin_visited:
+                word_list = list(word)
+
+                for j in range(word_len):
+                    origin_char = word_list[j]
+                    for k in range(26):
+                        word_list[j] = chr(ord('a') + k)
+                        next_word = ''.join(word_list)
+                        if next_word in word_set:
+                            if next_word in end_visited:
+                                return step + 1
+                            if next_word not in visited:
+                                next_level_visited.add(next_word)
+                                visited.add(next_word)
+                    word_list[j] = origin_char
+            begin_visited = next_level_visited
+            step += 1
+        return 0
+
+
+class Solution20:
+    """
+    最长连续序列
+    https://leetcode.cn/problems/longest-consecutive-sequence/
+    给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
+    请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
+    """
+
+    @staticmethod
+    def longest_consecutive(nums: List[int]) -> int:
+        longest_streak = 0
+        num_set = set(nums)
+        for num in num_set:
+            if num - 1 not in num_set:
+                current_num = num
+                current_streak = 1
+                while current_num + 1 in num_set:
+                    current_num += 1
+                    current_streak += 1
+                longest_streak = max(longest_streak, current_streak)
+        return longest_streak
+
+
+class Solution22:
+    """
+    求根节点到叶节点数字之和
+    https://leetcode.cn/problems/sum-root-to-leaf-numbers/
+    给你一个二叉树的根节点 root ，树中每个节点都存放有一个 0 到 9 之间的数字。
+    每条从根节点到叶节点的路径都代表一个数字
+    例如，从根节点到叶节点的路径 1 -> 2 -> 3 表示数字 123 。
+    计算从根节点到叶节点生成的 所有数字之和 。
+    叶节点 是指没有子节点的节点。
+    输入：root = [4,9,0,5,1]
+    输出：1026
+    解释：
+    从根到叶子节点路径 4->9->5 代表数字 495
+    从根到叶子节点路径 4->9->1 代表数字 491
+    从根到叶子节点路径 4->0 代表数字 40
+    因此，数字总和 = 495 + 491 + 40 = 1026
+
+    """
+
+    @staticmethod
+    def sum_numbers_dfs(root: TreeNode) -> int:  # 深度优先搜索
+        def dfs(_root: TreeNode, prev_total: int) -> int:
+            if not _root:
+                return 0
+            total = prev_total * 10 + _root.val
+            if not _root.left and not _root.right:
+                return total
+            else:
+                return dfs(_root.left, total) + dfs(_root.right, total)
+
+        return dfs(root, 0)
+
+    @staticmethod
+    def sum_numbers_bfs(root: TreeNode) -> int:  # 广度优先搜索
+        if not root:
+            return 0
+        total = 0
+        queue = [(root, root.val)]
+        while queue:
+            node, num = queue.pop(0)
+            if not node.left and not node.right:
+                total += num
+            if node.left:
+                queue.append((node.left, num * 10 + node.left.val))
+            if node.right:
+                queue.append((node.right, num * 10 + node.right.val))
+        return total
+
+
+class Solution23:
+    """
+    被围绕的区域
+    给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' ，找到所有被 'X' 围绕的区域，并将这些区域里所有的 'O' 用 'X' 填充。
+    输入：board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+    输出：[["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+    解释：被围绕的区间不会存在于边界上，换句话说，任何边界上的 'O' 都不会被填充为 'X'。 任何不在边界上，或不与边界上的 'O' 相连的 'O' 最终都会被填充为 'X'。如果两个元素在水平或垂直方向相邻，则称它们是“相连”的。
+    """
+
+    @staticmethod
+    def solve_dfs(board: List[List[str]]) -> None:  # 深度优先搜索
+        if not board:
+            return
+
+        n, m = len(board), len(board[0])
+
+        def dfs(x, y):
+            if not 0 <= x < n or not 0 <= y < m or board[x][y] != 'O':
+                return
+
+            board[x][y] = "A"  # 把标记过的字母 O 修改为字母 A。
+            dfs(x + 1, y)
+            dfs(x - 1, y)
+            dfs(x, y + 1)
+            dfs(x, y - 1)
+
+        for i in range(n):  # 对于每一个边界上的 O，我们以它为起点，标记所有与它直接或间接相连的字母 O；
+            dfs(i, 0)
+            dfs(i, m - 1)
+
+        for i in range(m):  # 对于每一个边界上的 O，我们以它为起点，标记所有与它直接或间接相连的字母 O；
+            dfs(0, i)
+            dfs(n - 1, i)
+
+        for i in range(n):
+            for j in range(m):
+                if board[i][j] == "A":  # 如果是标记过的修改回 0
+                    board[i][j] = "O"
+                elif board[i][j] == "O":  # 如果是非标记过的，用 X 填充
+                    board[i][j] = "X"
+
+    @staticmethod
+    def solve_bfs(board: List[List[str]]) -> None:  # 广度优先搜索
+        if not board:
+            return
+
+        n, m = len(board), len(board[0])
+        que = collections.deque()
+
+        # 处理边界情况
+        for i in range(n):
+            if board[i][0] == "O":  # 如果是标记过的改为 A
+                que.append((i, 0))
+                board[i][0] = "A"
+            if board[i][m - 1] == "O":
+                que.append((i, m - 1))
+                board[i][m - 1] = "A"
+        for i in range(m):
+            if board[0][i] == "O":  # 如果是标记过的改为 A
+                que.append((0, i))
+                board[0][i] = "A"
+            if board[n - 1][i] == "O":
+                que.append((n - 1, i))
+                board[n - 1][i] = "A"
+
+        # 处理与边界相邻的情况
+        while que:
+            x, y = que.popleft()
+            for mx, my in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
+                if 0 <= mx < n and 0 <= my < m and board[mx][my] == "O":  # 如果是标记过的改为 A
+                    que.append((mx, my))
+                    board[mx][my] = "A"
+
+        for i in range(n):
+            for j in range(m):
+                if board[i][j] == "A":
+                    board[i][j] = "O"
+                elif board[i][j] == "O":
+                    board[i][j] = "X"
+
+
+class Solution24(object):
+    """
+    分割回文串
+    https://leetcode.cn/problems/palindrome-partitioning/
+    给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
+    """
+
+    def partition(self, s):
+        res = []
+        self.backtrack(s, res, [])
+        return res
+
+    def backtrack(self, s, res, path):
+        if not s:
+            res.append(path)
+            return
+        for i in range(1, len(s) + 1):  # 注意起始和结束位置
+            if s[:i] == s[:i][::-1]:
+                self.backtrack(s[i:], res, path + [s[:i]])
+
+    @staticmethod
+    def partition_v2(s: str) -> List[List[str]]:
+        result = []
+        path = []
+        #判断是否是回文串
+        def pending_s(s):
+            l, r = 0, len(s) - 1
+            while l < r:
+                if s[l] != s[r]:
+                    return False
+                l += 1
+                r -= 1
+            return True
+
+        #回溯函数，这里的index作为遍历到的索引位置，也作为终止判断的条件
+        def back_track(s, index):
+            #如果对整个字符串遍历完成，并且走到了这一步，则直接加入result
+            if index == len(s):
+                result.append(path[:])
+                return
+
+            #遍历每个子串
+            for i in range(index, len(s)):
+                #剪枝，因为要求每个元素都是回文串，那么我们只对回文串进行递归，不是回文串的部分直接不care它
+                #当前子串是回文串
+                if pending_s(s[index : i + 1]):
+                    #加入当前子串到path
+                    path.append(s[index: i + 1])
+                    #从当前i+1处重复递归
+                    back_track(s, i + 1)
+                    #回溯
+                    path.pop()
+        back_track(s, 0)
+        return result
+
+
+class Solution:
+    """
+    分割回文串 II
+    https://leetcode.cn/problems/palindrome-partitioning-ii/
+    给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是回文。
+    返回符合要求的 最少分割次数 。
+    """
+
+    @staticmethod
+    def min_cut(s: str) -> int:
+        l = len(s)
+        f = [i for i in range(l)]  # 前i个元素最少的分割次数
+        for i in range(l):
+            for j in range(i + 1):  # 对于第i个元素，遍历之前的所有组合进行判断
+                tmp = s[j:i + 1]
+                if tmp == tmp[::-1]:  # s[j:i+1]是回文
+                    f[i] = min(f[i], f[j - 1] + 1) if j > 0 else 0
+        return f[l - 1]
