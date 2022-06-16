@@ -1111,7 +1111,8 @@ class Solution24(object):
     def partition_v2(s: str) -> List[List[str]]:
         result = []
         path = []
-        #判断是否是回文串
+
+        # 判断是否是回文串
         def pending_s(s):
             l, r = 0, len(s) - 1
             while l < r:
@@ -1121,29 +1122,30 @@ class Solution24(object):
                 r -= 1
             return True
 
-        #回溯函数，这里的index作为遍历到的索引位置，也作为终止判断的条件
+        # 回溯函数，这里的index作为遍历到的索引位置，也作为终止判断的条件
         def back_track(s, index):
-            #如果对整个字符串遍历完成，并且走到了这一步，则直接加入result
+            # 如果对整个字符串遍历完成，并且走到了这一步，则直接加入result
             if index == len(s):
                 result.append(path[:])
                 return
 
-            #遍历每个子串
+            # 遍历每个子串
             for i in range(index, len(s)):
-                #剪枝，因为要求每个元素都是回文串，那么我们只对回文串进行递归，不是回文串的部分直接不care它
-                #当前子串是回文串
-                if pending_s(s[index : i + 1]):
-                    #加入当前子串到path
+                # 剪枝，因为要求每个元素都是回文串，那么我们只对回文串进行递归，不是回文串的部分直接不care它
+                # 当前子串是回文串
+                if pending_s(s[index: i + 1]):
+                    # 加入当前子串到path
                     path.append(s[index: i + 1])
-                    #从当前i+1处重复递归
+                    # 从当前i+1处重复递归
                     back_track(s, i + 1)
-                    #回溯
+                    # 回溯
                     path.pop()
+
         back_track(s, 0)
         return result
 
 
-class Solution:
+class Solution25:
     """
     分割回文串 II
     https://leetcode.cn/problems/palindrome-partitioning-ii/
@@ -1152,7 +1154,7 @@ class Solution:
     """
 
     @staticmethod
-    def min_cut(s: str) -> int:
+    def min_cut(s: str):
         l = len(s)
         f = [i for i in range(l)]  # 前i个元素最少的分割次数
         for i in range(l):
@@ -1161,3 +1163,193 @@ class Solution:
                 if tmp == tmp[::-1]:  # s[j:i+1]是回文
                     f[i] = min(f[i], f[j - 1] + 1) if j > 0 else 0
         return f[l - 1]
+
+    @staticmethod
+    def min_cut_v2(s: str):
+        n = len(s)
+        g = [[True] * n for _ in range(n)]
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i + 1, n):
+                g[i][j] = (s[i] == s[j]) and g[i + 1][j - 1]
+
+        f = [float("inf")] * n
+        for i in range(n):
+            if g[0][i]:
+                f[i] = 0
+            else:
+                for j in range(i):
+                    if g[j + 1][i]:
+                        f[i] = min(f[i], f[j] + 1)
+        return f[n - 1]
+
+
+class Node(object):
+    def __init__(self, val=0, neighbors=None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+
+class Solution26(object):
+    """
+    克隆图
+    https://leetcode.cn/problems/clone-graph/
+    给你无向 连通 图中一个节点的引用，请你返回该图的 深拷贝（克隆）。
+    图中的每个节点都包含它的值 val（int） 和其邻居的列表（list[Node]）。
+
+    """
+
+    def __init__(self):
+        self.visited = {}
+
+    def clone_graph_dfs(self, node):
+        """
+        :type node: Node
+        :rtype: Node
+        """
+        if not node:
+            return node
+
+        # 如果该节点已经被访问过了，则直接从哈希表中取出对应的克隆节点返回
+        if node in self.visited:
+            return self.visited[node]
+
+        # 克隆节点，注意到为了深拷贝我们不会克隆它的邻居的列表
+        clone_node = Node(node.val, [])
+
+        # 哈希表存储
+        self.visited[node] = clone_node
+
+        # 遍历该节点的邻居并更新克隆节点的邻居列表
+        if node.neighbors:
+            clone_node.neighbors = [self.clone_graph_dfs(n) for n in node.neighbors]
+
+        return clone_node
+
+    @staticmethod
+    def clone_graph_bfs(node):
+        """
+        :type node: Node
+        :rtype: Node
+        """
+        if not node:
+            return node
+
+        visited = {}
+
+        # 将题目给定的节点添加到队列
+        queue = deque([node])
+        # 克隆第一个节点并存储到哈希表中
+        visited[node] = Node(node.val, [])
+
+        # 广度优先搜索
+        while queue:
+            # 取出队列的头节点
+            n = queue.popleft()
+            # 遍历该节点的邻居
+            for neighbor in n.neighbors:
+                if neighbor not in visited:
+                    # 如果没有被访问过，就克隆并存储在哈希表中
+                    visited[neighbor] = Node(neighbor.val, [])
+                    # 将邻居节点加入队列中
+                    queue.append(neighbor)
+                # 更新当前节点的邻居列表
+                visited[n].neighbors.append(visited[neighbor])
+        return visited[node]
+
+
+class Solution27:
+    """
+    加油站
+    https://leetcode.cn/problems/gas-station/
+    在一条环路上有 n 个加油站，其中第 i 个加油站有汽油 gas[i] 升。
+    你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。
+    给定两个整数数组 gas 和 cost ，如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1 。如果存在解，则 保证 它是 唯一 的
+    """
+    @staticmethod
+    def can_complete_circuit(gas: List[int], cost: List[int]) -> int:
+        if sum(gas) < sum(cost):
+            return -1
+
+        '''sum(gas) >= sum(cost)，一定有解【题目保证唯一解】'''
+        n = len(gas)
+        start = 0  # 记录出发点，从索引0开始
+        total = 0  # 记录汽车实际油量
+        for i in range(n):
+            total += gas[i] - cost[i]  # 每个站点加油量相当于 gas[i] - cost[i]
+            if total < 0:  # 在i处的油量<0，说明从之前站点出发的车均无法到达i
+                start = i + 1  # 尝试从下一个站点i+1重新出发
+                total = 0  # 重新出发时油量置为0
+
+        return start  # 解是唯一的
+
+
+class Solution28:
+    """
+    分发糖果
+    https://leetcode.cn/problems/candy/
+    n 个孩子站成一排。给你一个整数数组 ratings 表示每个孩子的评分。
+    你需要按照以下要求，给这些孩子分发糖果：
+
+    每个孩子至少分配到 1 个糖果。
+    相邻两个孩子评分更高的孩子会获得更多的糖果。
+    请你给每个孩子分发糖果，计算并返回需要准备的 最少糖果数目 。
+
+    输入：ratings = [1,0,2]
+    输出：5
+    解释：你可以分别给第一个、第二个、第三个孩子分发 2、1、2 颗糖果。
+    """
+    @staticmethod
+    def candy(ratings: List[int]) -> int:
+        n = len(ratings)
+        left = [0] * n
+        for i in range(n):
+            if i > 0 and ratings[i] > ratings[i - 1]:
+                left[i] = left[i - 1] + 1
+            else:
+                left[i] = 1
+
+        right = ret = 0
+        for i in range(n - 1, -1, -1):
+            if i < n - 1 and ratings[i] > ratings[i + 1]:
+                right += 1
+            else:
+                right = 1
+            ret += max(left[i], right)
+
+        return ret
+
+from functools import reduce
+class Solution29:
+    """
+    只出现一次的数字
+    https://leetcode.cn/problems/single-number/
+    给定一个非空整数数组，除了某个元素只出现一次以外，其余每个元素均出现两次。找出那个只出现了一次的元素。
+    任何数和 0 做异或运算，结果仍然是原来的数
+    任何数和其自身做异或运算，结果是 0
+    """
+    @staticmethod
+    def single_number(nums: List[int]) -> int:
+        return reduce(lambda x, y: x ^ y, nums)
+
+
+class Solution30(object):
+    """
+    复制带随机指针的链表
+    https://leetcode.cn/problems/copy-list-with-random-pointer/
+    给你一个长度为 n 的链表，每个节点包含一个额外增加的随机指针 random ，该指针可以指向链表中的任何节点或空节点。
+    构造这个链表的 深拷贝。 深拷贝应该正好由 n 个 全新 节点组成，其中每个新节点的值都设为其对应的原节点的值。新节点的 next 指针和 random
+    指针也都应指向复制链表中的新节点，并使原链表和复制链表中的这些指针能够表示相同的链表状态。复制链表中的指针都不应指向原链表中的节点 。
+    """
+    def __init__(self):
+        self.cached_node = {}
+
+    def copy_random_list(self, head: 'Optional[Node]') -> 'Optional[Node]':
+        if not head:
+            return None
+        if not self.cached_node.get(head):
+            head_new = Node(head.val)
+            self.cached_node[head] = head_new
+            head_new.next = self.copy_random_list(head.next)
+            head_new.random = self.copy_random_list(head.random)
+        return self.cached_node.get(head)

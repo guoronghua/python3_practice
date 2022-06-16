@@ -12,17 +12,42 @@
 # 这就是溢出后截取的，
 #
 # 在python上想实现溢出效果，找到一个函数
-# #这个函数可以得到32位int溢出结果，因为python的int一旦超过宽度就会自动转为long，永远不会溢出，有的结果却需要溢出的int作为参数继续参与运算
-def int_overflow(val):
-    maxint = 2147483647
-    flag = maxint + 1
-    if not -maxint-1 <= val <= maxint:
-        val = (val + flag) % (2 * flag) - flag
-    return val
-#
-#
-# ret = int_overflow(123456789 << 20)
-# print(ret)
-# print(bin(ret))
-# 现在得到结果是-783286272
-# 二进制：-101110101100000000000000000000
+ratings = [1,0,2]
+min_val =  min(ratings)
+min_val_index = ratings.index(min_val)
+print(min_val_index)
+
+
+def candy(ratings):
+    min_val = min(ratings)
+    min_val_index = ratings.index(min_val)
+    i = j = min_val_index
+    res = [0] * len(ratings)
+    res[i] = 1
+    while i > 0:
+        if ratings[i - 1] > ratings[i]:
+            res[i - 1] = res[i] + 1
+        elif ratings[i - 1] == ratings[i]:
+            if i - 2 >= 0 and ratings[i - 2] == min_val:
+                res[i - 1] = 2
+            else:
+                res[i - 1] = 1
+        else:
+            res[i - 1] = max(1, res[i] - 1)
+        i -= 1
+
+    while j < len(ratings) - 1:
+        if ratings[j + 1] > ratings[j]:
+            res[j + 1] = res[j] + 1
+        elif ratings[j + 1] == ratings[j]:
+            if j + 2 < len(ratings) and ratings[j + 2] == min_val:
+                res[j + 1] = 2
+            else:
+                res[j + 1] = 1
+        else:
+            res[j + 1] = max(1, res[j] - 1)
+        j += 1
+    print(res)
+    return sum(res)
+
+candy([1,3,2,2,1])
