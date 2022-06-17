@@ -1353,3 +1353,64 @@ class Solution30(object):
             head_new.next = self.copy_random_list(head.next)
             head_new.random = self.copy_random_list(head.random)
         return self.cached_node.get(head)
+
+
+class Solution31:
+    """
+    单词拆分
+    给你一个字符串 s 和一个字符串列表 wordDict 作为字典。请你判断是否可以利用字典中出现的单词拼接出 s 。
+    不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用。
+    https://leetcode.cn/problems/word-break/
+    """
+    @staticmethod
+    def word_break(s: str, word_dict: List[str]) -> bool:
+        n=len(s)
+        dp=[False]*(n+1)  # dp[i] 表示 s 的前 i 位是否可以用 wordDict 中的单词表示。
+        dp[0]=True    # 初始化 dp[0]=True，空字符可以被表示。
+        for i in range(n):  # 遍历字符串的所有子串
+            for j in range(i+1,n+1):
+                if dp[i] and (s[i:j] in word_dict): # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
+                    dp[j]=True
+        return dp[-1]
+
+
+class Solution32:
+    """
+    单词拆分 II
+    https://leetcode.cn/problems/word-break-ii/
+    给定一个字符串 s 和一个字符串字典 wordDict ，在字符串 s 中增加空格来构建一个句子，使得句子中所有的单词都在词典中。以任意顺序 返回所有这些可能的句子。
+    词典中的同一个单词可能在分段中被重复使用多次。
+    """
+    def word_break(self, s: str, word_dict: List[str]) -> List[str]:
+        res = []
+        self.backtrack(s, res, [], word_dict)
+        return res
+
+    def backtrack(self, s, res, path, word_dict):
+        if not s:
+            res.append(" ".join(path))
+            return res
+        for i in range(1, len(s) + 1):  # 注意起始和结束位置
+            if s[:i] in word_dict:
+                self.backtrack(s[i:], res, path + [s[:i]], word_dict)
+
+
+class Solution33(object):
+    """
+    环形链表 II
+    https://leetcode.cn/problems/linked-list-cycle-ii/
+    给定一个链表的头节点  head ，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
+    """
+    @staticmethod
+    def detect_cycle(head):
+        fast, slow = head, head
+        while True:
+            if not (fast and fast.next):
+                return
+            fast, slow = fast.next.next, slow.next
+            if fast == slow:
+                break
+        fast = head
+        while fast != slow:
+            fast, slow = fast.next, slow.next
+        return fast

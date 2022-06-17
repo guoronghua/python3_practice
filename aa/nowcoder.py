@@ -2120,7 +2120,9 @@ def fun_57():
             flag = 0
             D = {"J": "11", "Q": "12", "K": "13", "A": "1"}
             operators = {'0': '+', '1': '-', '2': '*', '3': '/'}
-
+            wordDict = []
+            wordDict.sort(lambda x:len(x))
+            wordDict.sort(lambda x: len(x))
             input_cards = input().split()
             new_cards = [D.get(i, i) for i in input_cards]
             operator_cases = itertools.product(map(str, range(4)), repeat=3)  # 笛卡尔积，相当于嵌套的for循环
