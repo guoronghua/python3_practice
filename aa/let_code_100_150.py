@@ -1414,3 +1414,36 @@ class Solution33(object):
         while fast != slow:
             fast, slow = fast.next, slow.next
         return fast
+
+
+class Solution34:
+    """
+    重排链表
+    https://leetcode.cn/problems/reorder-list/
+    给定一个单链表 L 的头节点 head ，单链表 L 表示为：
+    输入：head = [1,2,3,4,5]
+    输出：[1,5,2,4,3]
+    """
+
+    @staticmethod
+    def reorder_list(head: ListNode) -> None:
+        if not head:
+            return
+
+        vec = list()
+        node = head
+        while node:
+            vec.append(node)
+            node = node.next
+
+        i, j = 0, len(vec) - 1
+        while i < j:
+            vec[i].next = vec[j]
+            i += 1
+            if i == j:
+                break
+            vec[j].next = vec[i]
+            j -= 1
+            
+
+        vec[i].next = None
