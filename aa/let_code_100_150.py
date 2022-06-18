@@ -461,61 +461,101 @@ class DoublyLink:
         self.size -= 1
 
 
-class LRUCache:
-    """
-    LRU cache 算法实现
-    插入数据时：若空间满了，则删除链表尾部元素，在进行插入
-    查询数据时：先把数据删除，再重新插入数据，保证了元素的顺序是按照访问顺序排列
-    """
-
-    def __init__(self, size):
-        self.size = size
-        self.hash_map = dict()
-        self.link = DoublyLink()
-
-    def set(self, key, value):
-
-        if self.size == self.link.size:
-            self.link.remove(self.link.tail)
-
-        if key in self.hash_map:
-            self.link.remove(self.hash_map.get(key))
-
-        tmp_node = self.link.insert(value)
-        self.hash_map[key] = tmp_node
-
-    def get(self, key):
-        tmp_node = self.hash_map.get(key)
-        self.link.remove(tmp_node)
-        self.link.insert(tmp_node)
-        return tmp_node.data
-
-
 from collections import OrderedDict
 
 
-class LRUCacheV2:
+class LRUCache:
     """
     OrderedDict的本质就是一个有序的dict，其实现也是通过一个dict+双向链表
     """
 
-    def __init__(self, size):
-        self.size = size
-        self.linked_map = OrderedDict()
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.dic = OrderedDict()
 
-    def set(self, key, value):
-        if key in self.linked_map:
-            self.linked_map.pop(key)
-
-        if self.size == len(self.linked_map):
-            self.linked_map.popitem(last=False)
-        self.linked_map.update({key: value})
-
-    def get(self, key):
-        value = self.linked_map.get(key)
-        self.linked_map.pop(key)
-        self.linked_map.update({key: value})
+    def get(self, key: int) -> int:
+        if key not in self.dic:
+            return -1
+        value = self.dic.get(key)
+        self.dic.pop(key)
+        self.dic[key] = value
         return value
+
+    def put(self, key: int, value: int) -> None:
+        if self.dic.get(key):
+            self.dic.pop(key)
+        self.dic[key] = value
+        if len(self.dic.items()) > self.capacity:
+            self.dic.popitem(last=False)
+
+
+class DLinkedNode:
+    def __init__(self, key=0, value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class LRUCacheV2:
+    def __init__(self, capacity: int):
+        self.cache = dict()
+        # 使用伪头部和伪尾部节点
+        self.head = DLinkedNode()
+        self.tail = DLinkedNode()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.capacity = capacity
+        self.size = 0
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # 如果 key 存在，先通过哈希表定位，再移到头部
+        node = self.cache[key]
+        self.move_to_head(node)
+        return node.value
+
+    def put(self, key: int, value: int) -> None:
+        if key not in self.cache:
+            # 如果 key 不存在，创建一个新的节点
+            node = DLinkedNode(key, value)
+            # 添加进哈希表
+            self.cache[key] = node
+            # 添加至双向链表的头部
+            self.add_to_head(node)
+            self.size += 1
+            if self.size > self.capacity:
+                # 如果超出容量，删除双向链表的尾部节点
+                removed = self.remove_tail()
+                # 删除哈希表中对应的项
+                self.cache.pop(removed.key)
+                self.size -= 1
+        else:
+            # 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
+            node = self.cache[key]
+            node.value = value
+            self.move_to_head(node)
+
+    def add_to_head(self, node):
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+
+    @staticmethod
+    def remove_node(node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def move_to_head(self, node):
+        self.remove_node(node)
+        self.add_to_head(node)
+
+    def remove_tail(self):
+        node = self.tail.prev
+        self.move_to_head(node)
+        return node
 
 
 import time
@@ -659,13 +699,30 @@ class Solution15:
 
     @staticmethod
     def max_profit(prices: List[int]) -> int:
-        inf = int(1e9)
-        min_price = inf
-        max_profit = 0
-        for price in prices:
-            max_profit = max(price - min_price, max_profit)
-            min_price = min(min_price, price)
-        return max_profit
+        dp = [0] * len(prices)
+        for i in range(1, len(prices)):
+            new_price = dp[i - 1] + (prices[i] - prices[i - 1])
+            dp[i] = max(dp[i - 1], new_price)
+        return dp[len(prices) - 1]
+
+    @staticmethod
+    def max_profit_v2(prices: List[int]) -> int:
+        n = len(prices)
+        # dp[i][0] : 第i天结束时，手上没有股票的最大利润
+        # dp[i][1] : 第i天结束时，手上持有股票的最大利润
+        dp = [[0] * 2 for _ in range(n)]
+
+        # 初始化
+        dp[0][0] = 0
+        dp[0][1] = -prices[0]
+
+        for i in range(1, n):
+            # dp[i][0]：（前一天没有股票，前一天持有股票+当天卖出）的最大值
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] + prices[i])
+            # dp[i][1]：（前一天持有股票，前一天没有股票+当天买入）的最大值
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] - prices[i])
+
+        return dp[n - 1][0]
 
 
 class Solution16:
@@ -1266,6 +1323,7 @@ class Solution27:
     你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。
     给定两个整数数组 gas 和 cost ，如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1 。如果存在解，则 保证 它是 唯一 的
     """
+
     @staticmethod
     def can_complete_circuit(gas: List[int], cost: List[int]) -> int:
         if sum(gas) < sum(cost):
@@ -1299,6 +1357,7 @@ class Solution28:
     输出：5
     解释：你可以分别给第一个、第二个、第三个孩子分发 2、1、2 颗糖果。
     """
+
     @staticmethod
     def candy(ratings: List[int]) -> int:
         n = len(ratings)
@@ -1319,7 +1378,10 @@ class Solution28:
 
         return ret
 
+
 from functools import reduce
+
+
 class Solution29:
     """
     只出现一次的数字
@@ -1328,6 +1390,7 @@ class Solution29:
     任何数和 0 做异或运算，结果仍然是原来的数
     任何数和其自身做异或运算，结果是 0
     """
+
     @staticmethod
     def single_number(nums: List[int]) -> int:
         return reduce(lambda x, y: x ^ y, nums)
@@ -1341,6 +1404,7 @@ class Solution30(object):
     构造这个链表的 深拷贝。 深拷贝应该正好由 n 个 全新 节点组成，其中每个新节点的值都设为其对应的原节点的值。新节点的 next 指针和 random
     指针也都应指向复制链表中的新节点，并使原链表和复制链表中的这些指针能够表示相同的链表状态。复制链表中的指针都不应指向原链表中的节点 。
     """
+
     def __init__(self):
         self.cached_node = {}
 
@@ -1362,15 +1426,17 @@ class Solution31:
     不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用。
     https://leetcode.cn/problems/word-break/
     """
+
     @staticmethod
     def word_break(s: str, word_dict: List[str]) -> bool:
-        n=len(s)
-        dp=[False]*(n+1)  # dp[i] 表示 s 的前 i 位是否可以用 wordDict 中的单词表示。
-        dp[0]=True    # 初始化 dp[0]=True，空字符可以被表示。
+        n = len(s)
+        dp = [False] * (n + 1)  # dp[i] 表示 s 的前 i 位是否可以用 wordDict 中的单词表示。
+        dp[0] = True  # 初始化 dp[0]=True，空字符可以被表示。
         for i in range(n):  # 遍历字符串的所有子串
-            for j in range(i+1,n+1):
-                if dp[i] and (s[i:j] in word_dict): # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
-                    dp[j]=True
+            for j in range(i + 1, n + 1):
+                if dp[i] and (s[
+                              i:j] in word_dict):  # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
+                    dp[j] = True
         return dp[-1]
 
 
@@ -1381,6 +1447,7 @@ class Solution32:
     给定一个字符串 s 和一个字符串字典 wordDict ，在字符串 s 中增加空格来构建一个句子，使得句子中所有的单词都在词典中。以任意顺序 返回所有这些可能的句子。
     词典中的同一个单词可能在分段中被重复使用多次。
     """
+
     def word_break(self, s: str, word_dict: List[str]) -> List[str]:
         res = []
         self.backtrack(s, res, [], word_dict)
@@ -1401,6 +1468,7 @@ class Solution33(object):
     https://leetcode.cn/problems/linked-list-cycle-ii/
     给定一个链表的头节点  head ，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
     """
+
     @staticmethod
     def detect_cycle(head):
         fast, slow = head, head
@@ -1444,6 +1512,52 @@ class Solution34:
                 break
             vec[j].next = vec[i]
             j -= 1
-            
 
         vec[i].next = None
+
+
+class Solution35:
+    """
+    归并排序链表
+    https://leetcode.cn/problems/sort-list/
+    给你链表的头结点 head ，请将其按 升序 排列并返回 排序后的链表 。
+
+    """
+
+    @staticmethod
+    def sort_list(head: ListNode) -> ListNode:
+        def sort_func(head: ListNode, tail: ListNode) -> ListNode:
+            if not head:  # 找到链表的中点，以中点为分界，将链表拆分成两个子链表。寻找链表的中点可以使用快慢指针的做法，
+                return head # 快指针每次移动 2 步，慢指针每次移动 1 步，当快指针到达链表末尾时，慢指针指向的链表节点即为链表的中点。
+            if head.next == tail:
+                head.next = None
+                return head
+            slow = fast = head
+            while fast != tail:
+                slow = slow.next
+                fast = fast.next
+                if fast != tail:
+                    fast = fast.next
+            mid = slow
+            left = sort_func(head, mid)  # 对两个子链表分别排序。
+            right = sort_func(mid, tail)
+            return merge(left, right)
+
+        def merge(head1: ListNode, head2: ListNode) -> ListNode: # 将两个排序后的子链表合并，得到完整的排序后的链表。
+            dummy_head = ListNode(0)
+            temp, temp1, temp2 = dummy_head, head1, head2
+            while temp1 and temp2:
+                if temp1.val <= temp2.val:
+                    temp.next = temp1
+                    temp1 = temp1.next
+                else:
+                    temp.next = temp2
+                    temp2 = temp2.next
+                temp = temp.next
+            if temp1:
+                temp.next = temp1
+            elif temp2:
+                temp.next = temp2
+            return dummy_head.next
+
+        return sort_func(head, None)
