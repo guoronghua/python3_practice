@@ -1434,8 +1434,7 @@ class Solution31:
         dp[0] = True  # 初始化 dp[0]=True，空字符可以被表示。
         for i in range(n):  # 遍历字符串的所有子串
             for j in range(i + 1, n + 1):
-                if dp[i] and (s[
-                              i:j] in word_dict):  # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
+                if dp[i] and (s[i:j] in word_dict):  # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
                     dp[j] = True
         return dp[-1]
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from sortedcontainers import SortedList
 
 class Sort(object):
     """常见的排序算法"""
@@ -928,6 +928,33 @@ class DivideAndConquer:
             j += 1
         for i in range(0, high - low + 1):
             a_list[low + i] = temp[i]
+
+    @staticmethod
+    def count_reverse_size_v2(nums) -> int:
+        temp = nums[:]
+        temp.sort()
+        result = 0
+        for i, v in enumerate(nums):
+            a = temp.index(v)
+            result += a
+            temp.pop(a)
+        return result
+
+    # from sortedcontainers import SortedList
+    @staticmethod
+    def count_reverse_size_v3(nums) -> int:  # 维护一个有序数组 sl，从右往左依次往里添加 nums 中的元素，
+                                            # 每次添加 nums[i] 前基于「二分搜索」判断出当前 sl 中比 nums[i]
+                                            # 小的元素个数（即 nums[i] 右侧比 nums[i] 还要小的元素个数），并累计入答案即可。
+        n = len(nums)
+        sl = SortedList()
+
+        ans = 0
+        for i in range(n - 1, -1, -1):  # 反向遍历
+            cnt = sl.bisect_left(nums[i])  # 找到右边比当前值小的元素个数
+            ans += cnt  # 记入答案
+            sl.add(nums[i])  # 将当前值加入有序数组中
+
+        return ans
 
 
 class Backtracking(object):
