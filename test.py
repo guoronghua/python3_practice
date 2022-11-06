@@ -1,21 +1,24 @@
 
-
-heights = [6,7,5,2,4,5,9,3]
-
-aa = heights[:-3]
-bb = heights[3:]
-print()
-
-n = len(heights)
-left, right = [0] * n, [0] * n
-
-mono_stack = list()
-for i in range(n):  # 从左往右对数组进行遍历，借助单调栈求出了每根柱子的左边界(左侧且最近的小于其高度的柱子)
-    while mono_stack and heights[mono_stack[-1]] >= heights[i]:
-        mono_stack.pop()
-    left[i] = mono_stack[-1] if mono_stack else -1
-    mono_stack.append(i)
+L = 10
+bin = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
 
-# 输入：[6,7,5,2,4,5,9,3]
-# 左侧的柱子编号分别为 [−1,0,−1,−1,3,4,5,3]
+def findRepeatedDnaSequences(s: str):
+    n = len(s)
+    if n <= L:
+        return []
+    ans = []
+    x = 0
+    for ch in s[:L - 1]:
+        x = (x << 2) | bin[ch]
+    cnt = defaultdict(int)
+    for i in range(n - L + 1):
+        x = ((x << 2) | bin[s[i + L - 1]]) & ((1 << (L * 2)) - 1)
+        cnt[x] += 1
+        if cnt[x] == 2:
+            ans.append(s[i : i + L])
+    return ans
+
+
+aa = findRepeatedDnaSequences("AAAAAAAAAAA")
+print(aa)

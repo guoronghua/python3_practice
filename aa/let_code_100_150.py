@@ -1,6 +1,4 @@
-import sys
-import heapq
-import itertools
+
 import functools
 import collections
 from collections import Counter
@@ -680,6 +678,16 @@ class Solution14:
             min_price = min(min_price, price)
         return max_profit
 
+    @staticmethod
+    def max_profit_v2(prices: List[int]) -> int:
+        buy, sell = -float("inf"), 0
+        for p in prices:
+            buy = max(buy, 0 - p)
+            sell = max(sell, buy + p)
+        return sell
+
+
+
 
 class Solution15:
     """
@@ -724,6 +732,14 @@ class Solution15:
 
         return dp[n - 1][0]
 
+    @staticmethod
+    def max_profit_v3(prices: List[int]) -> int:
+        buy, sell = -float("inf"), 0 #这两个问题唯一的不同点在于我们是买一次还是买无穷多次，而代码就只有 0-p 和 sell-p 的区别。
+        for p in prices:             #因为如果买无穷多次，就需要上一次卖完的状态。如果只买一次，那么上一个状态一定是0
+            buy = max(buy, sell - p)
+            sell = max(sell, buy + p)
+        return sell
+
 
 class Solution16:
     """
@@ -742,19 +758,22 @@ class Solution16:
 
     @staticmethod
     def max_profit(prices: List[int]) -> int:
-        # buy1 只进行过一次买操作；
-        # sell1 进行了一次买操作和一次卖操作，即完成了一笔交易；
-        # buy2 在完成了一笔交易的前提下，进行了第二次买操作；
-        # sell2 完成了全部两笔交易。
-        n = len(prices)
-        buy1 = buy2 = -prices[0]
-        sell1 = sell2 = 0
-        for i in range(1, n):
-            buy1 = max(buy1, -prices[i])
-            sell1 = max(sell1, buy1 + prices[i])
-            buy2 = max(buy2, sell1 - prices[i])
-            sell2 = max(sell2, buy2 + prices[i])
-        return sell2
+        # b1 只进行过一次买操作；
+        # s1 进行了一次买操作和一次卖操作，即完成了一笔交易；
+        # b2 在完成了一笔交易的前提下，进行了第二次买操作；
+        # s2 完成了全部两笔交易。
+        b1, b2, s1, s2 = -float("inf"), -float("inf"), 0, 0
+
+        for p in prices:
+            b1 = max(b1, 0 - p)
+            s1 = max(s1, b1 + p)
+            b2 = max(b2, s1 - p)
+            s2 = max(s2, b2 + p)
+
+        return s2
+
+
+
 
 
 class Solution17:
@@ -1434,7 +1453,8 @@ class Solution31:
         dp[0] = True  # 初始化 dp[0]=True，空字符可以被表示。
         for i in range(n):  # 遍历字符串的所有子串
             for j in range(i + 1, n + 1):
-                if dp[i] and (s[i:j] in word_dict):  # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
+                if dp[i] and (s[
+                              i:j] in word_dict):  # dp[i]=True 说明 s 的前 i 位可以用 wordDict 表示, s[i:j]出现在 wordDict 中，说明 s 的前 j 位可以表示。
                     dp[j] = True
         return dp[-1]
 
@@ -1527,7 +1547,7 @@ class Solution35:
     def sort_list(head: ListNode) -> ListNode:
         def sort_func(head: ListNode, tail: ListNode) -> ListNode:
             if not head:  # 找到链表的中点，以中点为分界，将链表拆分成两个子链表。寻找链表的中点可以使用快慢指针的做法，
-                return head # 快指针每次移动 2 步，慢指针每次移动 1 步，当快指针到达链表末尾时，慢指针指向的链表节点即为链表的中点。
+                return head  # 快指针每次移动 2 步，慢指针每次移动 1 步，当快指针到达链表末尾时，慢指针指向的链表节点即为链表的中点。
             if head.next == tail:
                 head.next = None
                 return head
@@ -1542,7 +1562,7 @@ class Solution35:
             right = sort_func(mid, tail)
             return merge(left, right)
 
-        def merge(head1: ListNode, head2: ListNode) -> ListNode: # 将两个排序后的子链表合并，得到完整的排序后的链表。
+        def merge(head1: ListNode, head2: ListNode) -> ListNode:  # 将两个排序后的子链表合并，得到完整的排序后的链表。
             dummy_head = ListNode(0)
             temp, temp1, temp2 = dummy_head, head1, head2
             while temp1 and temp2:
@@ -1560,3 +1580,450 @@ class Solution35:
             return dummy_head.next
 
         return sort_func(head, None)
+
+
+class Solution36:
+    """
+     直线上最多的点数
+     https://leetcode.cn/problems/max-points-on-a-line/
+     给你一个数组 points ，其中 points[i] = [xi, yi] 表示 X-Y 平面上的一个点。求最多有多少个点在同一条直线上。
+    """
+
+    @staticmethod
+    def max_points(points: List[List[int]]) -> int:
+
+        # 计算2点之间的斜率
+        def K(i, j):
+            "a".isalnum()
+            return float('Inf') if i[1] - j[1] == 0 else (i[0] - j[0]) / (i[1] - j[1])
+
+        if len(points) <= 2:
+            return len(points)
+
+        max_ans = 0
+        for i in points:
+            # 统计包含当前点的直线上 斜率相同的最多的点的数量
+            hash_map = Counter([K(i, j) for j in points if j != i])
+            temp_max = hash_map.most_common(1)[0][1] if hash_map else 0
+            max_ans = max(1 + temp_max, max_ans)
+
+        return max_ans
+
+
+class Solution37:
+    """
+    乘积最大子数组
+    https://leetcode.cn/problems/maximum-product-subarray/
+    给你一个整数数组 nums ，请你找出数组中乘积最大的非空连续子数组（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+
+    对于乘法，我们需要注意，负数乘以负数，会变成正数，所以解这题的时候我们需要维护两个变量，
+    当前的最大值，以及最小值，最小值可能为负数，但没准下一步乘以一个负数，当前的最大值就变成最小值，
+    而最小值则变成最大值了。
+
+    """
+
+    @staticmethod
+    def max_product(nums: List[int]) -> int:
+        res = nums[0]
+        pre_max = nums[0]
+        pre_min = nums[0]
+        for num in nums[1:]:
+            cur_max = max(pre_max * num, pre_min * num, num)
+            cur_min = min(pre_max * num, pre_min * num, num)
+            res = max(res, cur_max)
+            pre_max = cur_max
+            pre_min = cur_min
+        return res
+
+class Solution38:
+    """
+    寻找旋转排序数组中的最小值
+    https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/
+    已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,2,4,5,6,7] 在变化后可能得到：
+    若旋转 4 次，则可以得到 [4,5,6,7,0,1,2]
+    若旋转 7 次，则可以得到 [0,1,2,4,5,6,7]
+    注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+    给你一个可能存在 重复 元素值的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素
+
+    """
+    @staticmethod
+    def find_min(nums: List[int]) -> int:
+        low, high = 0, len(nums) - 1
+
+        while low < high:
+            pivot = low + (high - low) // 2
+            if nums[pivot] < nums[high]:  # 中位值跟最右边的边界值比较，找到最小值的位置
+                high = pivot
+            elif nums[pivot] > nums[high]:
+                low = pivot + 1
+            else:
+                high -= 1 # nums[pivot] = nums[high] 由于重复元素的存在，我们并不能确定nums[pivot] 究竟在最小值的左侧还是右侧，
+                            # 因此我们不能莽撞地忽略某一部分的元素。我们唯一可以知道的是，由于它们的值相同，
+                            # 所以无论 nums[high] 是不是最小值，都有一个它的「替代品」nums[pivot]，因此我们可以忽略二分查找区间的右端点。
+
+        return nums[low]
+
+
+class Solution39:
+    """
+    相交链表
+    https://leetcode.cn/problems/intersection-of-two-linked-lists/
+    给你两个单链表的头节点 headA 和 headB ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 null 。
+    让两个链接遍历相同次数，如果存在相等的情况，一定有交集
+    """
+    @staticmethod
+    def get_intersection_node(head_a: ListNode, head_b: ListNode) -> Optional[ListNode]:
+        pa = head_a
+        pb = head_b
+        while pa != pb:
+            pa = pa.next if pa else head_b
+            pb = pb.next if pb else head_a
+        return pa
+
+
+class Solution40:
+    """
+    寻找峰值
+    https://leetcode.cn/problems/find-peak-element/
+    峰值元素是指其值严格大于左右相邻值的元素。
+    给你一个整数数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
+    """
+    @staticmethod
+    def find_peak_element(nums: List[int]) -> int:
+        n = len(nums)
+
+        # 辅助函数，输入下标 i，返回 nums[i] 的值
+        # 方便处理 nums[-1] 以及 nums[n] 的边界情况
+        def get(i: int) -> int:
+            if i == -1 or i == n:
+                return float('-inf')
+            return nums[i]
+
+        left, right, ans = 0, n - 1, -1
+        while left <= right:
+            mid = (left + right) // 2
+            if get(mid - 1) < get(mid) > get(mid + 1):
+                ans = mid
+                break
+            if get(mid) < get(mid + 1):
+                left = mid + 1
+            else:
+                right = mid - 1
+        return ans
+
+
+class Solution41:
+    """
+    最大间距
+    https://leetcode.cn/problems/maximum-gap/
+    给定一个无序的数组 nums，返回 数组在排序之后，相邻元素之间最大的差值 。如果数组元素个数小于 2，则返回 0 。
+    桶排序
+    """
+
+    @staticmethod
+    def maximum_gap(nums: List[int]) -> int:
+        if len(nums) < 2: return 0
+
+        # 一些初始化
+        max_ = max(nums)
+        min_ = min(nums)
+        max_gap = 0
+
+        each_bucket_len = max(1, (max_ - min_) // (len(nums) - 1))
+        bucket_num = (max_ - min_) // each_bucket_len + 1
+        buckets = [[] for _ in range(bucket_num)]
+
+        # 把数字放入桶中
+        for i in range(len(nums)):
+            loc = (nums[i] - min_) // each_bucket_len
+            buckets[loc].append(nums[i])
+
+        # 遍历桶更新答案
+        prev_max = float('inf')
+        for i in range(len(buckets)):
+            if buckets[i] and prev_max != float('inf'):
+                max_gap = max(max_gap, min(buckets[i]) - prev_max)
+
+            if buckets[i]:
+                prev_max = max(buckets[i])
+
+        return max_gap
+
+
+
+class Solution42:
+    """
+    分数到小数
+    https://leetcode.cn/problems/fraction-to-recurring-decimal/
+    给定两个整数，分别表示分数的分子 numerator 和分母 denominator，以 字符串形式返回小数 。
+    如果小数部分为循环小数，则将循环的部分括在括号内。
+    如果存在多个答案，只需返回 任意一个 。
+    对于所有给定的输入，保证 答案字符串的长度小于 104 。
+
+    """
+    @staticmethod
+    def fraction_to_decimal(numerator: int, denominator: int) -> str:
+        if numerator == 0: return "0"
+        res = []
+        # 首先判断结果正负, 异或作用就是 两个数不同 为 True 即 1 ^ 0 = 1 或者 0 ^ 1 = 1
+        if (numerator > 0) ^ (denominator > 0):
+            res.append("-")
+        numerator, denominator = abs(numerator), abs(denominator)
+        # 判读到底有没有小数
+        a, b = divmod(numerator, denominator)
+        res.append(str(a))
+        # 无小数
+        if b == 0:
+            return "".join(res)
+        res.append(".")
+        # 处理余数
+        # 把所有出现过的余数记录下来
+        loc = {b: len(res)}
+        while b:
+            b *= 10
+            a, b = divmod(b, denominator)
+            res.append(str(a))
+            # 余数前面出现过,说明开始循环了,加括号
+            if b in loc:
+                res.insert(loc[b], "(")
+                res.append(")")
+                break
+            # 在把该位置的记录下来
+            loc[b] = len(res)
+        return "".join(res)
+
+
+class Solution43:
+    """
+    https://leetcode.cn/problems/factorial-trailing-zeroes/
+    阶乘后的零
+    给定一个整数 n ，返回 n! 结果中尾随零的数量。
+    提示 n! = n * (n - 1) * (n - 2) * ... * 3 * 2 * 1
+
+
+    首先末尾有多少个 0 ，只需要给当前数乘以一个 10 就可以加一个 0。
+    含有 2 的因子每两个出现一次，含有 5 的因子每 5 个出现一次，所有 2 出现的个数远远多于 5，换言之找到一个 5，
+    一定能找到一个 2 与之配对。所以我们只需要找有多少个 5
+
+    再具体对于 5!，也就是 5 * 4 * 3 * 2 * 1 = 120，我们发现结果会有一个 0，原因就是 2 和 5 相乘构成了一个 10。
+    而对于 10 的话，其实也只有 2 * 5 可以构成，所以我们只需要找有多少对 2/5。
+
+    对于一个数的阶乘，5 的因子一定是每隔 5 个数出现一次，也就是下边的样子。
+    n! = 1 * 2 * 3 * 4 * (1 * 5) * ... * (2 * 5) * ... * (3 * 5) *... * n
+    因为每隔 5 个数出现一个 5，所以计算出现了多少个 5，我们只需要用 n/5 就可以算出来。
+
+    ... * (1 * 5) * ... * (1 * 5 * 5) * ... * (2 * 5 * 5) * ... * (3 * 5 * 5) * ... * n
+    每隔 25 个数字，出现的是两个 5，所以除了每隔 5 个数算作一个 5，每隔 25 个数，还需要多算一个 5。
+
+    同理我们还会发现每隔 5 * 5 * 5 = 125 个数字，会出现 3 个 5，所以我们还需要再加上 n / 125 。
+
+    综上，规律就是每隔 5 个数，出现一个 5，每隔 25 个数，出现 2 个 5，每隔 125 个数，出现 3 个 5... 以此类推。
+
+    最终 5 的个数就是 n / 5 + n / 25 + n / 125 ...
+
+    """
+
+    @staticmethod
+    def trailing_zeroes_v1(n: int) -> int:
+        ans = 0
+        for i in range(5, n + 1, 5):
+            while i % 5 == 0:
+                i //= 5
+                ans += 1
+        return ans
+
+
+    @staticmethod
+    def trailing_zeroes_v2(n: int) -> int:
+        ans = 0
+        while n:
+            n //= 5
+            ans += n
+        return ans
+
+
+class Solution44:
+    """
+    地下城游戏
+    https://leetcode.cn/problems/dungeon-game/
+    一些恶魔抓住了公主（P）并将她关在了地下城的右下角。地下城是由 M x N 个房间组成的二维网格。我们英勇的骑士（K）最初被安置在左上角的房间里，他必须穿过地下城并通过对抗恶魔来拯救公主。
+    骑士的初始健康点数为一个正整数。如果他的健康点数在某一时刻降至 0 或以下，他会立即死亡。
+    有些房间由恶魔守卫，因此骑士在进入这些房间时会失去健康点数（若房间里的值为负整数，则表示骑士将损失健康点数）；其他房间要么是空的（房间里的值为 0），要么包含增加骑士健康点数的魔法球（若房间里的值为正整数，则表示骑士将增加健康点数）。
+    为了尽快到达公主，骑士决定每次只向右或向下移动一步。
+    """
+    @staticmethod
+    def calculate_minimum_hp(dungeon: List[List[int]]) -> int:
+        n, m = len(dungeon), len(dungeon[0])
+        BIG = 10**9
+        dp = [[BIG] * (m + 1) for _ in range(n + 1)] # dp为从i,j到右下角需要的最小点数（自顶向下，从右下角开始往左、往上）
+        dp[n][m - 1] = dp[n - 1][m] = 1  # 状态转移： dp[i][j] = max(min(dp[i][j+1],dp[i+1][j]) - dungeon[i][j], 1)
+        for i in range(n - 1, -1, -1):  # 当 i=n-1 或者 j=m-1 时，dp[i][j] 转移需要用到的dp[i][j+1] 和 dp[i+1][j] 中有无效值，因此代码实现中给无效值赋值为极大值。
+            for j in range(m - 1, -1, -1): # 特别地dp[n−1][m−1] 转移需要用到的dp[n−1][m] 和 dp[n][m−1] 均为无效值，因此我们给这两个值赋值为 1。
+                minn = min(dp[i + 1][j], dp[i][j + 1])
+                dp[i][j] = max(minn - dungeon[i][j], 1)
+
+        return dp[0][0]
+
+
+class Solution45:
+    """
+    最大数
+    https://leetcode.cn/problems/largest-number/
+    给定一组非负整数 nums，重新排列每个数的顺序（每个数不可拆分）使之组成一个最大的整数。
+    """
+    @staticmethod
+    def largest_number_v1(nums: List[int]) -> str:
+        n = len(nums)
+        nums = list(map(str, nums))
+        for i in range(n):
+            for j in range(i + 1, n):
+                if nums[i] + nums[j] < nums[j] + nums[i]:
+                    nums[i], nums[j] = nums[j], nums[i]
+
+        return str(int("".join(nums)))
+
+    @staticmethod
+    def largest_number_v2(nums: List[int]) -> str:
+        def cmp(x,y):
+            return 1 if x+y<y+x else -1
+        nums=list(map(str,nums))
+        nums.sort(key=functools.cmp_to_key(cmp))
+        res= str(int("".join(nums)))
+        return res
+
+
+
+
+
+class Solution46:
+    """
+    买卖股票的最佳时机 IV
+    https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/
+    给定一个整数数组 prices ，它的第 i 个元素 prices[i] 是一支给定的股票在第 i 天的价格。
+    设计一个算法来计算你所能获取的最大利润。你最多可以完成 k 笔交易。
+    """
+    @staticmethod
+    def max_profit(k: int, prices: List[int]) -> int:
+        k = min(k, len(prices) // 2)
+        buy = [-float("inf")] * (k+1)
+        sell = [0] * (k+1)
+
+        for p in prices:
+            for i in range(1, k+1):
+                buy[i] = max(buy[i], sell[i-1] - p)
+                sell[i] = max(sell[i], buy[i] + p)
+
+        return sell[-1]
+
+class Solution47:
+    """
+    轮转数组
+    https://leetcode.cn/problems/rotate-array/
+    给你一个数组，将数组中的元素向右轮转 k 个位置，其中 k 是非负数。
+    """
+    @staticmethod
+    def rotate(nums: List[int], k: int) -> None:
+        k %= len(nums)
+        nums[:] = nums[-k:] + nums[:-k]
+
+        # 方法2
+        # nums[:] = nums[::-1]
+        # nums[:k] = nums[:k][::-1]
+        # nums[k:] = nums[k:][::-1]
+
+
+class Solution48:
+    """
+    颠倒二进制位
+    https://leetcode.cn/problems/reverse-bits/
+    颠倒给定的 32 位无符号整数的二进制位。
+    每次把 res 左移，把 n 的二进制末尾数字，拼接到结果 res 的末尾。然后把 n 右移。
+    """
+    @staticmethod
+    def reverse_bits(n):
+        res = 0
+        for i in range(32):
+            res = (res << 1) | (n & 1)
+            n >>= 1
+        return res
+
+
+class Solution49:
+    """
+    我们可以将二维网格看成一个无向图，竖直或水平相邻的 11 之间有边相连。
+    为了求出岛屿的数量，我们可以扫描整个二维网格。如果一个位置为 1，则以其为起始节点开始进行深度优先搜索。
+    在深度优先搜索的过程中，每个搜索到的 1 都会被重新标记为 0。
+    最终岛屿的数量就是我们进行深度优先搜索的次数。
+
+    """
+    @staticmethod
+    def num_islands(grid: List[List[str]]) -> int: # 深度优先
+        n, m = len(grid), len(grid[0])
+        if n == 0:
+            return 0
+
+        def dfs(x, y):
+            if not 0 <= x < n or not 0 <= y < m or grid[x][y] == '0':
+                return
+            grid[x][y] = "0"
+            dfs(x + 1, y)
+            dfs(x - 1, y)
+            dfs(x, y + 1)
+            dfs(x, y - 1)
+
+        num_islands = 0
+        for i in range(n):
+            for j in range(m):
+                if grid[i][j] == "1":
+                    num_islands += 1
+                    dfs(i, j)
+
+        return num_islands
+
+    @staticmethod
+    def num_islands_v2(grid: List[List[str]]) -> int:  # 广度优先
+        n, m = len(grid), len(grid[0])
+        if n == 0:
+            return 0
+
+        num_islands = 0
+        for i in range(n):
+            for j in range(m):
+                if grid[i][j] == "1":
+                    num_islands += 1
+                    grid[i][j] = "0"
+                    neighbors = collections.deque([(i, j)])
+                    while neighbors:
+                        row, col = neighbors.popleft()
+                        for x, y in [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]:
+                            if 0 <= x < n and 0 <= y < m and grid[x][y] == "1":
+                                neighbors.append((x, y))
+                                grid[x][y] = "0"
+
+        return num_islands
+
+
+
+class Solution50:
+    """
+    数字范围按位与
+    https://leetcode.cn/problems/bitwise-and-of-numbers-range/
+    给你两个整数 left 和 right ，表示区间 [left, right] ，返回此区间内所有数字 按位与 的结果（包含 left 、right 端点）。
+    """
+    @staticmethod
+    def range_bitwise_and_v1(m: int, n: int) -> int:
+        shift = 0 # 将两个数字不断向右移动，直到数字相等，即数字被缩减为它们的公共前缀。然后，通过将公共前缀向左移动，将零添加到公共前缀的右边以获得最终结果。
+        # 找到公共前缀
+        while m < n:
+            m >>= 1
+            n >>= 1
+            shift += 1
+        return m << shift
+
+    @staticmethod
+    def range_bitwise_and_v2(m: int, n: int) -> int:
+        while m < n: # 每次对 number 和 number−1 之间进行按位与运算后，number 中最右边的 1 会被抹去变成 0
+            # 抹去最右边的 1
+            n &= (n - 1) # 直到它小于或等于 m，此时非公共前缀部分的 1 均被消去。因此最后我们返回 n 即可
+        return n
+
