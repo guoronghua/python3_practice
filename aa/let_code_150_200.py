@@ -233,3 +233,73 @@ class Solution6:
                 the_other = s[len(max_hw):]
                 break
         return the_other[::-1] + max_hw + the_other
+
+
+class Solution7:
+    """
+    数组中的第K个最大元素
+    https://leetcode.cn/problems/kth-largest-element-in-an-array/
+    给定整数数组 nums 和整数 k，请返回数组中第 k 个最大的元素。
+    请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+    你必须设计并实现时间复杂度为 O(n) 的算法解决此问题。
+    """
+    @staticmethod
+    def find_kth_largest(nums: List[int], k: int) -> int:
+        def max_hepify(arr, i, end):  # 大顶堆
+            j = 2 * i + 1  # j为i的左子节点【建堆时下标0表示堆顶】
+            while j <= end:  # 自上而下进行调整
+                if j + 1 <= end and arr[j + 1] > arr[j]:  # i的左右子节点分别为j和j+1
+                    j += 1  # 取两者之间的较大者
+
+                if arr[i] < arr[j]:  # 若i指示的元素小于其子节点中的较大者
+                    arr[i], arr[j] = arr[j], arr[i]  # 交换i和j的元素，并继续往下判断
+                    i = j  # 往下走：i调整为其子节点j
+                    j = 2 * i + 1  # j调整为i的左子节点
+                else:  # 否则，结束调整
+                    break
+
+        n = len(nums)
+
+        # 建堆【大顶堆】
+        for i in range(n // 2 - 1, -1, -1):  # 从第一个非叶子节点n//2-1开始依次往上进行建堆的调整
+            max_hepify(nums, i, n - 1)
+
+        # 排序：依次将堆顶元素（当前最大值）放置到尾部，并调整堆
+        # k-1次重建堆（堆顶元素），或 k次交换到尾部（倒数第k个元素）
+        for j in range(n - 1, n - k - 1, -1):
+            nums[0], nums[j] = nums[j], nums[0]  # 堆顶元素（当前最大值）放置到尾部j
+            max_hepify(nums, 0, j - 1)  # j-1变成尾部，并从堆顶0开始调整堆
+
+        return nums[-k]
+
+
+class Solution8:
+    """
+    组合总和 III
+    https://leetcode.cn/problems/combination-sum-iii/
+    找出所有相加之和为 n 的 k 个数的组合，且满足下列条件：
+    只使用数字1到9
+    每个数字 最多使用一次
+    """
+    @staticmethod
+    def combination_sum3(k: int, n: int) -> List[List[int]]:
+        def search(num, _n, one_solution):
+            if _n == 0 and len(one_solution) == k:  # 找到了正确的解
+                res.append(one_solution[:])  # 注意要切片一下。相当于复制了一遍内容。*切片不加也没关系。*
+                return
+
+            if num == 10:  # 1~9查完了
+                return
+
+            if _n < 0:  # 数组和大于n了
+                return
+
+            if len(one_solution) > k:  # 数组长度大于k了
+                return
+
+            search(num + 1, _n - num, one_solution + [num])  # 选了这个数
+            search(num + 1, _n, one_solution)   # 没选择这个数
+
+        res = []
+        search(1, n, [])
+        return res
